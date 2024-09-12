@@ -13,7 +13,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useSpring, animated, SpringValue } from "react-spring";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 type Message = {
@@ -66,29 +65,6 @@ export default function Component() {
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const [newMessageCompleted, setNewMessageCompleted] = useState(false);
-
-  const savedSpring = useSpring({
-    scale: newMessageCompleted ? 1.1 : 1,
-    color: newMessageCompleted ? "#10B981" : "#000000",
-    config: { tension: 300, friction: 10 },
-  });
-
-  const tokensSpring = useSpring({
-    scale: newMessageCompleted ? 1.1 : 1,
-    color: newMessageCompleted ? "#10B981" : "#000000",
-    config: { tension: 300, friction: 10 },
-  });
-
-  useEffect(() => {
-    if (newMessageCompleted) {
-      const timer = setTimeout(() => {
-        setNewMessageCompleted(false);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [newMessageCompleted]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -173,7 +149,6 @@ export default function Component() {
 
         setTotalTokens((prev) => prev + responseTokens);
         setTotalSaved((prev) => prev + savedCost);
-        setNewMessageCompleted(true);
 
         setMessages((prev) =>
           prev.map((msg) =>
@@ -241,8 +216,6 @@ export default function Component() {
             setIsAdjustingLatency={setIsAdjustingLatency}
             handleSliderPointerMove={handleSliderPointerMove}
             popoverPosition={popoverPosition}
-            savedSpring={savedSpring}
-            tokensSpring={tokensSpring}
           />
         </div>
 
@@ -274,8 +247,6 @@ export default function Component() {
                   setIsAdjustingLatency={setIsAdjustingLatency}
                   handleSliderPointerMove={handleSliderPointerMove}
                   popoverPosition={popoverPosition}
-                  savedSpring={savedSpring}
-                  tokensSpring={tokensSpring}
                 />
               </SheetContent>
             </Sheet>
@@ -416,8 +387,6 @@ function SidebarContent({
   setIsAdjustingLatency,
   handleSliderPointerMove,
   popoverPosition,
-  savedSpring,
-  tokensSpring,
 }: {
   totalSaved: number;
   totalTokens: number;
@@ -435,8 +404,6 @@ function SidebarContent({
   setIsAdjustingLatency: React.Dispatch<React.SetStateAction<boolean>>;
   handleSliderPointerMove: (event: React.PointerEvent<HTMLSpanElement>) => void;
   popoverPosition: { x: number; y: number };
-  savedSpring: SpringValue<{ scale: number; color: string }>;
-  tokensSpring: SpringValue<{ scale: number; color: string }>;
 }): JSX.Element {
   return (
     <>
@@ -466,15 +433,15 @@ function SidebarContent({
       <div className="p-4 border-t">
         <div className="flex items-center mb-4">
           <DollarSign className="w-4 h-4 mr-2 text-green-500" />
-          <animated.span style={savedSpring} className="text-sm font-medium">
+          <span className="text-sm font-medium text-black">
             ${formatNumber(totalSaved)} saved
-          </animated.span>
+          </span>
         </div>
         <div className="flex items-center mb-4">
           <Hash className="w-4 h-4 mr-2 text-blue-500" />
-          <animated.span style={tokensSpring} className="text-sm font-medium">
+          <span className="text-sm font-medium text-black">
             {totalTokens} tokens
-          </animated.span>
+          </span>
         </div>
         <div className="space-y-4">
           <div>
@@ -515,7 +482,9 @@ function SidebarContent({
               <PopoverTrigger asChild>
                 <Slider
                   value={[qualityPreference]}
-                  onValueChange={(value) => setQualityPreference(value[0])}
+                  onValueChange={(value: number[]) =>
+                    setQualityPreference(value[0])
+                  }
                   onValueCommit={() => setIsAdjustingQuality(false)}
                   max={100}
                   step={1}
