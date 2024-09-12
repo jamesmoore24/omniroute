@@ -39,7 +39,6 @@ jobs:
         run: |
           mkdir -p build_temp
           cp -R .next build_temp/
-          cp -R public build_temp/
           cp package.json build_temp/
           cp package-lock.json build_temp/
           cp next.config.mjs build_temp/

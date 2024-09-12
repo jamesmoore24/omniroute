@@ -28,6 +28,7 @@ type Message = {
     saved: string;
   };
   isLoading?: boolean;
+  providerRevealed?: boolean;
 };
 
 const LLM_PROVIDERS = [
@@ -115,6 +116,7 @@ export default function Component() {
             Math.floor(Math.random() * selectedProviders.length)
           ],
         isLoading: true,
+        providerRevealed: false,
       };
       setMessages((prev) => [...prev, newAiMessage]);
 
@@ -127,11 +129,6 @@ export default function Component() {
           body: JSON.stringify({
             message: newUserMessage.content,
             provider: newAiMessage.provider,
-            // Include message history if needed
-            // messageHistory: messages.map(msg => ({
-            //   role: msg.sender === "user" ? "user" : "assistant",
-            //   content: msg.content
-            // }))
           }),
         });
 
@@ -152,7 +149,12 @@ export default function Component() {
           setMessages((prev) =>
             prev.map((msg) =>
               msg.id === newAiMessage.id
-                ? { ...msg, content: aiResponseContent, isLoading: false }
+                ? {
+                    ...msg,
+                    content: aiResponseContent,
+                    isLoading: false,
+                    providerRevealed: true,
+                  }
                 : msg
             )
           );
@@ -389,7 +391,7 @@ export default function Component() {
                       >
                         {msg.sender === "ai" && msg.provider && (
                           <div className="text-xs text-gray-500 mb-2">
-                            {msg.provider}
+                            {msg.providerRevealed ? msg.provider : "Loading..."}
                           </div>
                         )}
                         {msg.isLoading ? (
