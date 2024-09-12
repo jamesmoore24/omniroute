@@ -464,7 +464,11 @@ export default function Component() {
                   }}
                   className="flex-1 mr-2 text-black"
                 />
-                <Button type="submit" size="icon">
+                <Button
+                  type="submit"
+                  size="icon"
+                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                >
                   <Send className="h-4 w-4" />
                 </Button>
               </form>
