@@ -5,7 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
-import { Plus, Send, DollarSign, Hash, Loader2, Menu } from "lucide-react";
+import {
+  Plus,
+  Send,
+  DollarSign,
+  Hash,
+  Loader2,
+  Menu,
+  HelpCircle,
+} from "lucide-react";
 import { Header } from "@/components/Header";
 import { Combobox } from "@/components/ui/combobox";
 import {
@@ -14,6 +22,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Message = {
   id: number;
@@ -212,179 +226,206 @@ export default function Component() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 text-black">
-      <Header />
-      <div className="flex flex-1 overflow-hidden">
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:flex w-64 bg-white flex-col overflow-hidden border-r">
-          <SidebarContent
-            totalSaved={totalSaved}
-            totalTokens={totalTokens}
-            costPreference={costPreference}
-            setCostPreference={setCostPreference}
-            qualityPreference={qualityPreference}
-            setQualityPreference={setQualityPreference}
-            latencyPreference={latencyPreference}
-            setLatencyPreference={setLatencyPreference}
-            isAdjustingCost={isAdjustingCost}
-            setIsAdjustingCost={setIsAdjustingCost}
-            isAdjustingQuality={isAdjustingQuality}
-            setIsAdjustingQuality={setIsAdjustingQuality}
-            isAdjustingLatency={isAdjustingLatency}
-            setIsAdjustingLatency={setIsAdjustingLatency}
-            handleSliderPointerMove={handleSliderPointerMove}
-            popoverPosition={popoverPosition}
-          />
-        </div>
-
-        {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
-          <div className="bg-gray-50 p-4 border-b flex items-center space-x-4 relative z-10">
-            {/* Mobile Sidebar Toggle */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="lg:hidden">
-                  <Menu className="h-4 w-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-0 bg-white">
-                <SidebarContent
-                  totalSaved={totalSaved}
-                  totalTokens={totalTokens}
-                  costPreference={costPreference}
-                  setCostPreference={setCostPreference}
-                  qualityPreference={qualityPreference}
-                  setQualityPreference={setQualityPreference}
-                  latencyPreference={latencyPreference}
-                  setLatencyPreference={setLatencyPreference}
-                  isAdjustingCost={isAdjustingCost}
-                  setIsAdjustingCost={setIsAdjustingCost}
-                  isAdjustingQuality={isAdjustingQuality}
-                  setIsAdjustingQuality={setIsAdjustingQuality}
-                  isAdjustingLatency={isAdjustingLatency}
-                  setIsAdjustingLatency={setIsAdjustingLatency}
-                  handleSliderPointerMove={handleSliderPointerMove}
-                  popoverPosition={popoverPosition}
-                />
-              </SheetContent>
-            </Sheet>
-
-            <Combobox
-              providers={LLM_PROVIDERS}
-              onSelectedValuesChange={(values) => setSelectedProviders(values)}
-              initialSelectedValues={selectedProviders}
+    <TooltipProvider>
+      <div className="flex flex-col h-screen bg-gray-100 text-black">
+        <Header />
+        <div className="flex flex-1 overflow-hidden">
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:flex w-64 bg-white flex-col overflow-hidden border-r">
+            <SidebarContent
+              totalSaved={totalSaved}
+              totalTokens={totalTokens}
+              costPreference={costPreference}
+              setCostPreference={setCostPreference}
+              qualityPreference={qualityPreference}
+              setQualityPreference={setQualityPreference}
+              latencyPreference={latencyPreference}
+              setLatencyPreference={setLatencyPreference}
+              isAdjustingCost={isAdjustingCost}
+              setIsAdjustingCost={setIsAdjustingCost}
+              isAdjustingQuality={isAdjustingQuality}
+              setIsAdjustingQuality={setIsAdjustingQuality}
+              isAdjustingLatency={isAdjustingLatency}
+              setIsAdjustingLatency={setIsAdjustingLatency}
+              handleSliderPointerMove={handleSliderPointerMove}
+              popoverPosition={popoverPosition}
             />
           </div>
-          <div className="flex-1 overflow-hidden flex flex-col">
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-6">
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex ${
-                      msg.sender === "user" ? "justify-end" : "justify-start"
-                    }`}
-                  >
+
+          {/* Main Chat Area */}
+          <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
+            <div className="bg-gray-50 p-4 border-b flex items-center space-x-4 relative z-10">
+              {/* Mobile Sidebar Toggle */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" className="lg:hidden">
+                    <Menu className="h-4 w-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-64 p-0 bg-white">
+                  <SidebarContent
+                    totalSaved={totalSaved}
+                    totalTokens={totalTokens}
+                    costPreference={costPreference}
+                    setCostPreference={setCostPreference}
+                    qualityPreference={qualityPreference}
+                    setQualityPreference={setQualityPreference}
+                    latencyPreference={latencyPreference}
+                    setLatencyPreference={setLatencyPreference}
+                    isAdjustingCost={isAdjustingCost}
+                    setIsAdjustingCost={setIsAdjustingCost}
+                    isAdjustingQuality={isAdjustingQuality}
+                    setIsAdjustingQuality={setIsAdjustingQuality}
+                    isAdjustingLatency={isAdjustingLatency}
+                    setIsAdjustingLatency={setIsAdjustingLatency}
+                    handleSliderPointerMove={handleSliderPointerMove}
+                    popoverPosition={popoverPosition}
+                  />
+                </SheetContent>
+              </Sheet>
+
+              <div className="flex-1 flex items-center justify-between">
+                <Combobox
+                  providers={LLM_PROVIDERS}
+                  onSelectedValuesChange={(values) =>
+                    setSelectedProviders(values)
+                  }
+                  initialSelectedValues={selectedProviders}
+                />
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <HelpCircle className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">
+                      Model routing automatically selects the{" "}
+                      <b>best AI model </b>
+                      between the selected providers based on your preferences
+                      for cost, quality, and latency. This ensures optimal
+                      performance for each query.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+            <div className="flex-1 overflow-hidden flex flex-col">
+              <ScrollArea className="flex-1 p-4">
+                <div className="space-y-6">
+                  {messages.map((msg) => (
                     <div
-                      className={`flex flex-col ${
-                        msg.sender === "user" ? "items-end" : "items-start"
-                      } ${msg.sender === "user" ? "max-w-[80%]" : "w-full"}`}
+                      key={msg.id}
+                      className={`flex ${
+                        msg.sender === "user" ? "justify-end" : "justify-start"
+                      }`}
                     >
                       <div
-                        className={`p-4 rounded-lg shadow ${
-                          msg.sender === "user" ? "bg-orange-100" : "bg-gray-50"
-                        } ${msg.sender === "user" ? "w-full" : "w-full"}`}
+                        className={`flex flex-col ${
+                          msg.sender === "user" ? "items-end" : "items-start"
+                        } ${msg.sender === "user" ? "max-w-[80%]" : "w-full"}`}
                       >
-                        {msg.sender === "ai" && msg.provider && (
-                          <div className="text-xs text-gray-500 mb-2">
-                            {msg.providerRevealed ? msg.provider : "Loading..."}
-                          </div>
-                        )}
-                        {msg.isLoading ? (
-                          <div className="flex items-center space-x-2">
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            <span>
-                              Routing response to the best provider...
-                            </span>
-                          </div>
-                        ) : (
-                          <p
-                            className={`text-black ${
-                              msg.sender === "user"
-                                ? "text-center"
-                                : "text-left"
-                            }`}
-                          >
-                            {msg.content}
-                          </p>
-                        )}
-                        {msg.sender === "ai" && msg.metrics && (
-                          <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200 flex flex-wrap gap-2">
-                            <span>
-                              Tokens: {formatNumber(msg.metrics.tokens)}
-                            </span>
-                            <span>•</span>
-                            <span>
-                              {formatNumber(msg.metrics.tokensPerSecond)}{" "}
-                              tokens/sec
-                            </span>
-                            <span>•</span>
-                            <span>
-                              Latency:{" "}
-                              {formatNumber(parseFloat(msg.metrics.latency))}ms
-                            </span>
-                            <span>•</span>
-                            <span>
-                              Cost: $
-                              {formatNumber(parseFloat(msg.metrics.cost))}
-                            </span>
-                            <span>•</span>
-                            <span>
-                              Saved: $
-                              {formatNumber(parseFloat(msg.metrics.saved))}
-                            </span>
-                          </div>
-                        )}
+                        <div
+                          className={`p-4 rounded-lg shadow ${
+                            msg.sender === "user"
+                              ? "bg-orange-100"
+                              : "bg-gray-50"
+                          } ${msg.sender === "user" ? "w-full" : "w-full"}`}
+                        >
+                          {msg.sender === "ai" && msg.provider && (
+                            <div className="text-xs text-gray-500 mb-2">
+                              {msg.providerRevealed
+                                ? msg.provider
+                                : "Loading..."}
+                            </div>
+                          )}
+                          {msg.isLoading ? (
+                            <div className="flex items-center space-x-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <span>
+                                Routing response to the best provider...
+                              </span>
+                            </div>
+                          ) : (
+                            <p
+                              className={`text-black ${
+                                msg.sender === "user"
+                                  ? "text-center"
+                                  : "text-left"
+                              }`}
+                            >
+                              {msg.content}
+                            </p>
+                          )}
+                          {msg.sender === "ai" && msg.metrics && (
+                            <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200 flex flex-wrap gap-2">
+                              <span>
+                                Tokens: {formatNumber(msg.metrics.tokens)}
+                              </span>
+                              <span>•</span>
+                              <span>
+                                {formatNumber(msg.metrics.tokensPerSecond)}{" "}
+                                tokens/sec
+                              </span>
+                              <span>•</span>
+                              <span>
+                                Latency:{" "}
+                                {formatNumber(parseFloat(msg.metrics.latency))}
+                                ms
+                              </span>
+                              <span>•</span>
+                              <span>
+                                Cost: $
+                                {formatNumber(parseFloat(msg.metrics.cost))}
+                              </span>
+                              <span>•</span>
+                              <span>
+                                Saved: $
+                                {formatNumber(parseFloat(msg.metrics.saved))}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />{" "}
-              </div>
-            </ScrollArea>
-            <div className="p-4 bg-gray-50 border-t">
-              <form
-                className="flex items-center"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSendMessage();
-                }}
-              >
-                <Input
-                  placeholder="Start a message..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
+                  ))}
+                  <div ref={messagesEndRef} />{" "}
+                </div>
+              </ScrollArea>
+              <div className="p-4 bg-gray-50 border-t">
+                <form
+                  className="flex items-center"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSendMessage();
                   }}
-                  className="flex-1 mr-2 text-black"
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  className="bg-orange-500 hover:bg-orange-600 text-white"
                 >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </form>
+                  <Input
+                    placeholder="Start a message..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    className="flex-1 mr-2 text-black"
+                  />
+                  <Button
+                    type="submit"
+                    size="icon"
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }
 
