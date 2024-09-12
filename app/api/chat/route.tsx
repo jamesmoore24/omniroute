@@ -8,6 +8,8 @@ const openai = new OpenAI({
 export async function POST(req: Request) {
   const { message } = await req.json();
 
+  let tokenCount = 0;
+
   const stream = await openai.chat.completions.create({
     model: "gpt-3.5-turbo",
     messages: [
@@ -22,8 +24,10 @@ export async function POST(req: Request) {
     async start(controller) {
       for await (const chunk of stream) {
         const content = chunk.choices[0]?.delta?.content || "";
+        tokenCount += content.split(/\s+/).length; // Simple token count estimation
         controller.enqueue(encoder.encode(content));
       }
+      controller.enqueue(encoder.encode(`\n\nTOKEN_COUNT:${tokenCount}`));
       controller.close();
     },
   });

@@ -97,6 +97,8 @@ export default function Component() {
       };
       setMessages((prev) => [...prev, newAiMessage]);
 
+      const startTime = Date.now();
+
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -116,12 +118,20 @@ export default function Component() {
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let aiResponseContent = "";
+        let tokenCount = 0;
 
         while (true) {
           const { done, value } = await reader!.read();
           if (done) break;
           const chunk = decoder.decode(value);
-          aiResponseContent += chunk;
+
+          if (chunk.includes("TOKEN_COUNT:")) {
+            const [content, count] = chunk.split("TOKEN_COUNT:");
+            aiResponseContent += content;
+            tokenCount = parseInt(count.trim(), 10);
+          } else {
+            aiResponseContent += chunk;
+          }
 
           setMessages((prev) =>
             prev.map((msg) =>
@@ -137,17 +147,25 @@ export default function Component() {
           );
         }
 
+        const endTime = Date.now();
+        const latency = endTime - startTime;
+        const tokensPerSecond = (tokenCount / latency) * 1000; // Convert to tokens per second
+
+        // Find the most expensive selected provider
+        const selectedProvidersCost = selectedProviders.map(
+          (name) => LLM_PROVIDERS.find((p) => p.name === name)!.costPerToken
+        );
+        const mostExpensiveProviderCost = Math.max(...selectedProvidersCost);
+
         // Update metrics after the full response is received
-        const responseTokens = 100;
-        const provider = LLM_PROVIDERS.find(
+        const usedProvider = LLM_PROVIDERS.find(
           (p) => p.name === newAiMessage.provider
         )!;
-        const cost = responseTokens * provider.costPerToken;
+        const cost = tokenCount * usedProvider.costPerToken;
         const savedCost =
-          responseTokens *
-          (LLM_PROVIDERS[0].costPerToken - provider.costPerToken);
+          tokenCount * (mostExpensiveProviderCost - usedProvider.costPerToken);
 
-        setTotalTokens((prev) => prev + responseTokens);
+        setTotalTokens((prev) => prev + tokenCount);
         setTotalSaved((prev) => prev + savedCost);
 
         setMessages((prev) =>
@@ -156,9 +174,9 @@ export default function Component() {
               ? {
                   ...msg,
                   metrics: {
-                    tokens: responseTokens,
-                    tokensPerSecond: Math.round((responseTokens / 1000) * 1000), // Assuming 1 second for simplicity
-                    latency: "1000.00",
+                    tokens: tokenCount,
+                    tokensPerSecond: parseFloat(tokensPerSecond.toFixed(2)),
+                    latency: latency.toFixed(2),
                     cost: cost.toFixed(6),
                     saved: savedCost.toFixed(6),
                   },
@@ -459,6 +477,7 @@ function SidebarContent({
                   onPointerDown={() => setIsAdjustingCost(true)}
                   onPointerUp={() => setIsAdjustingCost(false)}
                   onPointerMove={handleSliderPointerMove}
+                  className="w-full"
                 />
               </PopoverTrigger>
               <PopoverContent
@@ -491,6 +510,7 @@ function SidebarContent({
                   onPointerDown={() => setIsAdjustingQuality(true)}
                   onPointerUp={() => setIsAdjustingQuality(false)}
                   onPointerMove={handleSliderPointerMove}
+                  className="w-full"
                 />
               </PopoverTrigger>
               <PopoverContent
@@ -521,6 +541,7 @@ function SidebarContent({
                   onPointerDown={() => setIsAdjustingLatency(true)}
                   onPointerUp={() => setIsAdjustingLatency(false)}
                   onPointerMove={handleSliderPointerMove}
+                  className="w-full"
                 />
               </PopoverTrigger>
               <PopoverContent
