@@ -311,7 +311,7 @@ export default function Component() {
               </div>
             </div>
             <div className="flex-1 overflow-hidden flex flex-col">
-              <ScrollArea className="flex-1 p-4 pb-32 md:pb-4">
+              <ScrollArea className="flex-1 p-4">
                 <div className="space-y-6">
                   {messages.map((msg) => (
                     <div
@@ -392,7 +392,7 @@ export default function Component() {
                   <div ref={messagesEndRef} />{" "}
                 </div>
               </ScrollArea>
-              <div className="p-4 bg-gray-50 border-t fixed bottom-0 left-0 right-0 md:relative">
+              <div className="p-4 bg-gray-50 border-t">
                 <form
                   className="flex items-center"
                   onSubmit={(e) => {
