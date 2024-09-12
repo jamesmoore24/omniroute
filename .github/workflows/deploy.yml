@@ -21,9 +21,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Next.js app
-        run: npm run build
-
       - name: Create .env file
         run: |
           echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
@@ -34,6 +31,9 @@ jobs:
           echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" >> .env
           echo "GOOGLE_PRIVATE_KEY='$(echo "${{ secrets.GOOGLE_PRIVATE_KEY }}" | sed 's/\\n/\n/g')'" >> .env
           echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+
+      - name: Build Next.js app
+        run: npm run build
 
       - name: Prepare build output
         run: |
