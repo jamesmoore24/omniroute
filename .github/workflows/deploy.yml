@@ -1,73 +1,74 @@
 name: Deploy Next.js App
 
 on:
-    push:
-        branches:
-            - main # Change this to your default branch if different
+  push:
+    branches:
+      - main # Change this to your default branch if different
 
 jobs:
-    build-and-deploy:
-        runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v2
-              with:
-                  node-version: "18" # Adjust this to your project's Node.js version
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18" # Adjust this to your project's Node.js version
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Build Next.js app
-              run: npm run build
+      - name: Build Next.js app
+        run: npm run build
 
-            - name: Create .env file
-              run: |
-                  echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
-                  echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
-                  echo "SMTP_USER=${{ secrets.SMTP_USER }}" >> .env
-                  echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env
-                  echo "GOOGLE_SHEET_ID=${{ secrets.GOOGLE_SHEET_ID }}" >> .env
-                  echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" >> .env
-                  echo "GOOGLE_PRIVATE_KEY='$(echo "${{ secrets.GOOGLE_PRIVATE_KEY }}" | sed 's/\\n/\n/g')'" >> .env
+      - name: Create .env file
+        run: |
+          echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
+          echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
+          echo "SMTP_USER=${{ secrets.SMTP_USER }}" >> .env
+          echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env
+          echo "GOOGLE_SHEET_ID=${{ secrets.GOOGLE_SHEET_ID }}" >> .env
+          echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" >> .env
+          echo "GOOGLE_PRIVATE_KEY='$(echo "${{ secrets.GOOGLE_PRIVATE_KEY }}" | sed 's/\\n/\n/g')'" >> .env
+          echo "GOOGLE_SHEET_ID=${{ secrets.OPENAI_API_KEY }}" >> .env
 
-            - name: Prepare build output
-              run: |
-                  mkdir -p build_temp
-                  cp -R .next build_temp/
-                  cp -R public build_temp/
-                  cp package.json build_temp/
-                  cp package-lock.json build_temp/
-                  cp next.config.mjs build_temp/
-                  cp .env build_temp/
+      - name: Prepare build output
+        run: |
+          mkdir -p build_temp
+          cp -R .next build_temp/
+          cp -R public build_temp/
+          cp package.json build_temp/
+          cp package-lock.json build_temp/
+          cp next.config.mjs build_temp/
+          cp .env build_temp/
 
-            - name: Install SSH key
-              uses: shimataro/ssh-key-action@v2
-              with:
-                  key: ${{ secrets.SSH_PRIVATE_KEY }}
-                  known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
-            - name: Deploy to server
-              run: |
-                  rsync -avz -e "ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10" --delete build_temp/ root@omniroute.ai:/var/www/omniroute/
+      - name: Deploy to server
+        run: |
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10" --delete build_temp/ root@omniroute.ai:/var/www/omniroute/
 
-            - name: Run post-deployment commands
-              run: |
-                  ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10 root@omniroute.ai '
-                    set -e
-                    cd /var/www/omniroute
-                    echo "Installing production dependencies..."
-                    npm ci --only=production --ignore-scripts --no-optional
-                    echo "Restarting PM2 process..."
-                    pm2 restart omniroute || pm2 start npm --name "omniroute" -- start
-                    echo "Reloading Nginx..."
-                    sudo systemctl reload nginx
-                    echo "Post-deployment commands completed successfully"
-                  '
+      - name: Run post-deployment commands
+        run: |
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10 root@omniroute.ai '
+            set -e
+            cd /var/www/omniroute
+            echo "Installing production dependencies..."
+            npm ci --only=production --ignore-scripts --no-optional
+            echo "Restarting PM2 process..."
+            pm2 restart omniroute || pm2 start npm --name "omniroute" -- start
+            echo "Reloading Nginx..."
+            sudo systemctl reload nginx
+            echo "Post-deployment commands completed successfully"
+          '
 
-            - name: Cleanup
-              if: always()
-              run: rm -rf ~/.ssh
+      - name: Cleanup
+        if: always()
+        run: rm -rf ~/.ssh

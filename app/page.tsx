@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Button, Input, Typography, Space, Tooltip } from "antd";
+import { Button, Input, Typography, Space } from "antd";
 import { SendOutlined, LoadingOutlined } from "@ant-design/icons";
 import { prompts, models } from "../data/aiData";
 import CountUp from "react-countup";

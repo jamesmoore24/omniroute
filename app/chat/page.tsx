@@ -13,7 +13,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import OpenAI from "openai";
 import { useSpring, animated } from "react-spring";
 
 type Message = {
@@ -55,22 +54,14 @@ export default function Component() {
   );
   const [totalSaved, setTotalSaved] = useState(0);
   const [totalTokens, setTotalTokens] = useState(0);
-  const [isSavingsIncreasing, setIsSavingsIncreasing] = useState(false);
   const [costPreference, setCostPreference] = useState(50);
   const [qualityPreference, setQualityPreference] = useState(50);
   const [latencyPreference, setLatencyPreference] = useState(50);
-  const prevSavedRef = useRef(0);
-  const prevTokensRef = useRef(0);
 
   const [isAdjustingCost, setIsAdjustingCost] = useState(false);
   const [isAdjustingQuality, setIsAdjustingQuality] = useState(false);
   const [isAdjustingLatency, setIsAdjustingLatency] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
-
-  const [selectedModel, setSelectedModel] = useState("");
-
-  const [isOptimizing, setIsOptimizing] = useState(false);
-  const [isRouting, setIsRouting] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -104,11 +95,6 @@ export default function Component() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const handleProviderToggle = (providerName: string) => {
-    setSelectedModel(providerName);
-    setSelectedProviders([providerName]);
-  };
 
   const handleSendMessage = async () => {
     if (message.trim() && selectedProviders.length > 0) {
@@ -398,7 +384,7 @@ export default function Component() {
                     >
                       <div
                         className={`p-4 rounded-lg shadow ${
-                          msg.sender === "user" ? "bg-blue-100" : "bg-gray-50"
+                          msg.sender === "user" ? "bg-orange-100" : "bg-gray-50"
                         } ${msg.sender === "user" ? "w-full" : "w-full"}`}
                       >
                         {msg.sender === "ai" && msg.provider && (
@@ -409,7 +395,9 @@ export default function Component() {
                         {msg.isLoading ? (
                           <div className="flex items-center space-x-2">
                             <Loader2 className="h-4 w-4 animate-spin" />
-                            <span>Generating response...</span>
+                            <span>
+                              Routing response to the best provider...
+                            </span>
                           </div>
                         ) : (
                           <p
@@ -453,20 +441,6 @@ export default function Component() {
                     </div>
                   </div>
                 ))}
-                {isOptimizing && (
-                  <div className="flex items-center space-x-2 text-orange-500 animate-fade-in-out">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Automatically optimizing prompt</span>
-                  </div>
-                )}
-                {isRouting && (
-                  <div className="flex items-center space-x-2 text-blue-500 animate-fade-in-out">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>
-                      Automatically routing prompt to the best provider
-                    </span>
-                  </div>
-                )}
                 <div ref={messagesEndRef} />{" "}
               </div>
             </ScrollArea>
