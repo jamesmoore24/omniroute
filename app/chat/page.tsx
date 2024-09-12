@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useSpring, animated } from "react-spring";
+import { useSpring, animated, SpringValue } from "react-spring";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 type Message = {
@@ -418,7 +418,26 @@ function SidebarContent({
   popoverPosition,
   savedSpring,
   tokensSpring,
-}) {
+}: {
+  totalSaved: number;
+  totalTokens: number;
+  costPreference: number;
+  setCostPreference: React.Dispatch<React.SetStateAction<number>>;
+  qualityPreference: number;
+  setQualityPreference: React.Dispatch<React.SetStateAction<number>>;
+  latencyPreference: number;
+  setLatencyPreference: React.Dispatch<React.SetStateAction<number>>;
+  isAdjustingCost: boolean;
+  setIsAdjustingCost: React.Dispatch<React.SetStateAction<boolean>>;
+  isAdjustingQuality: boolean;
+  setIsAdjustingQuality: React.Dispatch<React.SetStateAction<boolean>>;
+  isAdjustingLatency: boolean;
+  setIsAdjustingLatency: React.Dispatch<React.SetStateAction<boolean>>;
+  handleSliderPointerMove: (event: React.PointerEvent<HTMLSpanElement>) => void;
+  popoverPosition: { x: number; y: number };
+  savedSpring: SpringValue<{ scale: number; color: string }>;
+  tokensSpring: SpringValue<{ scale: number; color: string }>;
+}): JSX.Element {
   return (
     <>
       <ScrollArea className="flex-grow">
