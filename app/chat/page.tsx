@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
-import { Plus, Send, DollarSign, Hash, Loader2 } from "lucide-react";
+import { Plus, Send, DollarSign, Hash, Loader2, Menu } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Combobox } from "@/components/ui/combobox";
 import {
@@ -14,6 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useSpring, animated } from "react-spring";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 type Message = {
   id: number;
@@ -221,148 +222,64 @@ export default function Component() {
     <div className="flex flex-col h-screen bg-gray-100 text-black">
       <Header />
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-64 bg-white flex flex-col overflow-hidden border-r">
-          <ScrollArea className="flex-grow">
-            <div className="p-4">
-              <Button
-                variant="outline"
-                className="w-full justify-start mb-4 text-black"
-              >
-                <Plus className="mr-2 h-4 w-4" /> New Room
-              </Button>
-              {[
-                "how to download goo...",
-                "how to look at error lo...",
-                "what does cohere do ...",
-              ].map((room, index) => (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  className="w-full justify-start mb-2 text-left text-black"
-                >
-                  {room}
-                </Button>
-              ))}
-            </div>
-          </ScrollArea>
-          <div className="p-4 border-t">
-            <div className="flex items-center mb-4">
-              <DollarSign className="w-4 h-4 mr-2 text-green-500" />
-              <animated.span
-                style={savedSpring}
-                className="text-sm font-medium"
-              >
-                ${formatNumber(totalSaved)} saved
-              </animated.span>
-            </div>
-            <div className="flex items-center mb-4">
-              <Hash className="w-4 h-4 mr-2 text-blue-500" />
-              <animated.span
-                style={tokensSpring}
-                className="text-sm font-medium"
-              >
-                {totalTokens} tokens
-              </animated.span>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-1 block text-black">
-                  Cost
-                </label>
-                <Popover open={isAdjustingCost}>
-                  <PopoverTrigger asChild>
-                    <Slider
-                      value={[costPreference]}
-                      onValueChange={(value) => setCostPreference(value[0])}
-                      onValueCommit={() => setIsAdjustingCost(false)}
-                      max={100}
-                      step={1}
-                      onPointerDown={() => setIsAdjustingCost(true)}
-                      onPointerUp={() => setIsAdjustingCost(false)}
-                      onPointerMove={handleSliderPointerMove}
-                    />
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="px-2 py-1 w-auto h-auto text-xs transition-all duration-100"
-                    style={{
-                      position: "absolute",
-                      left: `${popoverPosition.x}px`,
-                      top: `${popoverPosition.y}px`,
-                      transform: "translateX(-50%)",
-                    }}
-                  >
-                    {costPreference}
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1 block text-black">
-                  Quality
-                </label>
-                <Popover open={isAdjustingQuality}>
-                  <PopoverTrigger asChild>
-                    <Slider
-                      value={[qualityPreference]}
-                      onValueChange={(value) => setQualityPreference(value[0])}
-                      onValueCommit={() => setIsAdjustingQuality(false)}
-                      max={100}
-                      step={1}
-                      onPointerDown={() => setIsAdjustingQuality(true)}
-                      onPointerUp={() => setIsAdjustingQuality(false)}
-                      onPointerMove={handleSliderPointerMove}
-                    />
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="px-2 py-1 w-auto h-auto text-xs transition-all duration-100"
-                    style={{
-                      position: "absolute",
-                      left: `${popoverPosition.x}px`,
-                      top: `${popoverPosition.y}px`,
-                      transform: "translateX(-50%)",
-                    }}
-                  >
-                    {qualityPreference}
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1 block text-black">
-                  Latency
-                </label>
-                <Popover open={isAdjustingLatency}>
-                  <PopoverTrigger asChild>
-                    <Slider
-                      value={[latencyPreference]}
-                      onValueChange={(value) => setLatencyPreference(value[0])}
-                      onValueCommit={() => setIsAdjustingLatency(false)}
-                      max={100}
-                      step={1}
-                      onPointerDown={() => setIsAdjustingLatency(true)}
-                      onPointerUp={() => setIsAdjustingLatency(false)}
-                      onPointerMove={handleSliderPointerMove}
-                    />
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="px-2 py-1 w-auto h-auto text-xs transition-all duration-100"
-                    style={{
-                      position: "absolute",
-                      left: `${popoverPosition.x}px`,
-                      top: `${popoverPosition.y}px`,
-                      transform: "translateX(-50%)",
-                    }}
-                  >
-                    {latencyPreference}
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-          </div>
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:flex w-64 bg-white flex-col overflow-hidden border-r">
+          <SidebarContent
+            totalSaved={totalSaved}
+            totalTokens={totalTokens}
+            costPreference={costPreference}
+            setCostPreference={setCostPreference}
+            qualityPreference={qualityPreference}
+            setQualityPreference={setQualityPreference}
+            latencyPreference={latencyPreference}
+            setLatencyPreference={setLatencyPreference}
+            isAdjustingCost={isAdjustingCost}
+            setIsAdjustingCost={setIsAdjustingCost}
+            isAdjustingQuality={isAdjustingQuality}
+            setIsAdjustingQuality={setIsAdjustingQuality}
+            isAdjustingLatency={isAdjustingLatency}
+            setIsAdjustingLatency={setIsAdjustingLatency}
+            handleSliderPointerMove={handleSliderPointerMove}
+            popoverPosition={popoverPosition}
+            savedSpring={savedSpring}
+            tokensSpring={tokensSpring}
+          />
         </div>
 
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
           <div className="bg-gray-50 p-4 border-b flex items-center space-x-4 relative z-10">
+            {/* Mobile Sidebar Toggle */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="lg:hidden">
+                  <Menu className="h-4 w-4" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64 p-0 bg-white">
+                <SidebarContent
+                  totalSaved={totalSaved}
+                  totalTokens={totalTokens}
+                  costPreference={costPreference}
+                  setCostPreference={setCostPreference}
+                  qualityPreference={qualityPreference}
+                  setQualityPreference={setQualityPreference}
+                  latencyPreference={latencyPreference}
+                  setLatencyPreference={setLatencyPreference}
+                  isAdjustingCost={isAdjustingCost}
+                  setIsAdjustingCost={setIsAdjustingCost}
+                  isAdjustingQuality={isAdjustingQuality}
+                  setIsAdjustingQuality={setIsAdjustingQuality}
+                  isAdjustingLatency={isAdjustingLatency}
+                  setIsAdjustingLatency={setIsAdjustingLatency}
+                  handleSliderPointerMove={handleSliderPointerMove}
+                  popoverPosition={popoverPosition}
+                  savedSpring={savedSpring}
+                  tokensSpring={tokensSpring}
+                />
+              </SheetContent>
+            </Sheet>
+
             <Combobox
               providers={LLM_PROVIDERS}
               onSelectedValuesChange={(values) => setSelectedProviders(values)}
@@ -479,5 +396,160 @@ export default function Component() {
         </div>
       </div>
     </div>
+  );
+}
+
+function SidebarContent({
+  totalSaved,
+  totalTokens,
+  costPreference,
+  setCostPreference,
+  qualityPreference,
+  setQualityPreference,
+  latencyPreference,
+  setLatencyPreference,
+  isAdjustingCost,
+  setIsAdjustingCost,
+  isAdjustingQuality,
+  setIsAdjustingQuality,
+  isAdjustingLatency,
+  setIsAdjustingLatency,
+  handleSliderPointerMove,
+  popoverPosition,
+  savedSpring,
+  tokensSpring,
+}) {
+  return (
+    <>
+      <ScrollArea className="flex-grow">
+        <div className="p-4">
+          <Button
+            variant="outline"
+            className="w-full justify-start mb-4 text-black"
+          >
+            <Plus className="mr-2 h-4 w-4" /> New Room
+          </Button>
+          {[
+            "how to download goo...",
+            "how to look at error lo...",
+            "what does cohere do ...",
+          ].map((room, index) => (
+            <Button
+              key={index}
+              variant="ghost"
+              className="w-full justify-start mb-2 text-left text-black"
+            >
+              {room}
+            </Button>
+          ))}
+        </div>
+      </ScrollArea>
+      <div className="p-4 border-t">
+        <div className="flex items-center mb-4">
+          <DollarSign className="w-4 h-4 mr-2 text-green-500" />
+          <animated.span style={savedSpring} className="text-sm font-medium">
+            ${formatNumber(totalSaved)} saved
+          </animated.span>
+        </div>
+        <div className="flex items-center mb-4">
+          <Hash className="w-4 h-4 mr-2 text-blue-500" />
+          <animated.span style={tokensSpring} className="text-sm font-medium">
+            {totalTokens} tokens
+          </animated.span>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-1 block text-black">
+              Cost
+            </label>
+            <Popover open={isAdjustingCost}>
+              <PopoverTrigger asChild>
+                <Slider
+                  value={[costPreference]}
+                  onValueChange={(value) => setCostPreference(value[0])}
+                  onValueCommit={() => setIsAdjustingCost(false)}
+                  max={100}
+                  step={1}
+                  onPointerDown={() => setIsAdjustingCost(true)}
+                  onPointerUp={() => setIsAdjustingCost(false)}
+                  onPointerMove={handleSliderPointerMove}
+                />
+              </PopoverTrigger>
+              <PopoverContent
+                className="px-2 py-1 w-auto h-auto text-xs transition-all duration-100"
+                style={{
+                  position: "absolute",
+                  left: `${popoverPosition.x}px`,
+                  top: `${popoverPosition.y}px`,
+                  transform: "translateX(-50%)",
+                }}
+              >
+                {costPreference}
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block text-black">
+              Quality
+            </label>
+            <Popover open={isAdjustingQuality}>
+              <PopoverTrigger asChild>
+                <Slider
+                  value={[qualityPreference]}
+                  onValueChange={(value) => setQualityPreference(value[0])}
+                  onValueCommit={() => setIsAdjustingQuality(false)}
+                  max={100}
+                  step={1}
+                  onPointerDown={() => setIsAdjustingQuality(true)}
+                  onPointerUp={() => setIsAdjustingQuality(false)}
+                  onPointerMove={handleSliderPointerMove}
+                />
+              </PopoverTrigger>
+              <PopoverContent
+                className="px-2 py-1 w-auto h-auto text-xs transition-all duration-100"
+                style={{
+                  position: "absolute",
+                  left: `${popoverPosition.x}px`,
+                  top: `${popoverPosition.y}px`,
+                  transform: "translateX(-50%)",
+                }}
+              >
+                {qualityPreference}
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block text-black">
+              Latency
+            </label>
+            <Popover open={isAdjustingLatency}>
+              <PopoverTrigger asChild>
+                <Slider
+                  value={[latencyPreference]}
+                  onValueChange={(value) => setLatencyPreference(value[0])}
+                  onValueCommit={() => setIsAdjustingLatency(false)}
+                  max={100}
+                  step={1}
+                  onPointerDown={() => setIsAdjustingLatency(true)}
+                  onPointerUp={() => setIsAdjustingLatency(false)}
+                  onPointerMove={handleSliderPointerMove}
+                />
+              </PopoverTrigger>
+              <PopoverContent
+                className="px-2 py-1 w-auto h-auto text-xs transition-all duration-100"
+                style={{
+                  position: "absolute",
+                  left: `${popoverPosition.x}px`,
+                  top: `${popoverPosition.y}px`,
+                  transform: "translateX(-50%)",
+                }}
+              >
+                {latencyPreference}
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
