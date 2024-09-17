@@ -3,25 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Slider } from "@/components/ui/slider";
-import {
-  Plus,
-  Send,
-  DollarSign,
-  Hash,
-  Loader2,
-  Menu,
-  HelpCircle,
-  X,
-} from "lucide-react";
+import { Plus, Send, Loader2, Menu, HelpCircle, X } from "lucide-react";
 import { Header } from "@/components/Header";
-import { Combobox as ComboboxComponent } from "@/components/ui/combobox";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Tooltip,
@@ -29,6 +12,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import SidebarContent from "@/components/ChatSideBar";
+import { LLM_PROVIDERS } from "@/data/aiData";
+import { formatNumber } from "@/lib/utils";
 
 type Message = {
   id: number;
@@ -46,21 +32,7 @@ type Message = {
   providerRevealed?: boolean;
 };
 
-const LLM_PROVIDERS = [
-  { name: "GPT-4o-mini", avatar: "G", costPerToken: 0.00001 },
-  { name: "sonnet-3.5-turbo", avatar: "C", costPerToken: 0.000008 },
-  { name: "llama-3.1-405b-versatile", avatar: "P", costPerToken: 0.000006 },
-  { name: "gemini-1.5-flash", avatar: "L", costPerToken: 0.000004 },
-  { name: "mistral-large-16k", avatar: "C", costPerToken: 0.000005 },
-  { name: "deepseek-coder", avatar: "A", costPerToken: 0.000009 },
-];
-
 // Helper function to format numbers
-const formatNumber = (num: number): string => {
-  if (num === 0) return "0";
-  const precision = Math.max(0, 3 - Math.floor(Math.log10(Math.abs(num))) - 1);
-  return num.toFixed(precision).replace(/\.?0+$/, "");
-};
 
 type ChatWindow = {
   id: string;
@@ -103,12 +75,17 @@ export default function Component() {
   }, [chatWindows]);
 
   const handleAddModelComparison = () => {
-    const newWindow: ChatWindow = {
-      id: `window-${Date.now()}`,
-      messages: [],
-      selectedProvider: null,
-    };
-    setChatWindows((prev) => [...prev, newWindow]);
+    if (chatWindows.length < 4) {
+      const newWindow: ChatWindow = {
+        id: `window-${Date.now()}`,
+        messages: [],
+        selectedProvider: null,
+      };
+      setChatWindows((prev) => [...prev, newWindow]);
+    } else {
+      // Optionally, you can show an alert or a message to the user
+      alert("You can only have up to 4 chat windows open.");
+    }
   };
 
   const handleCloseWindow = (id: string) => {
@@ -310,7 +287,7 @@ export default function Component() {
         <div className="flex flex-1 overflow-hidden">
           {/* Main Chat Area */}
           <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
-            <div className="p-4 flex items-center justify-between">
+            <div className="p-4 flex items-center justify-between border-b border-gray-200">
               {/* Sidebar Toggle */}
               <Sheet>
                 <SheetTrigger asChild>
@@ -376,12 +353,12 @@ export default function Component() {
               </div>
             </div>
             <div className="flex-1 overflow-auto">
-              <div className="flex flex-wrap h-full">
+              <div className="flex h-full">
                 {chatWindows.map((window, index) => (
                   <div
                     key={window.id}
                     className={`flex-1 flex flex-col min-w-[300px] h-full relative ${
-                      index > 0 ? "border-l border-gray-200" : ""
+                      index > 0 ? "border-l border-gray-250 h-full" : ""
                     }`}
                   >
                     {window.id !== "main" && (
@@ -524,189 +501,5 @@ export default function Component() {
         </div>
       </div>
     </TooltipProvider>
-  );
-}
-
-function SidebarContent({
-  selectedProviders,
-  setSelectedProviders,
-  totalSaved,
-  totalTokens,
-  costPreference,
-  setCostPreference,
-  qualityPreference,
-  setQualityPreference,
-  latencyPreference,
-  setLatencyPreference,
-  isAdjustingCost,
-  setIsAdjustingCost,
-  isAdjustingQuality,
-  setIsAdjustingQuality,
-  isAdjustingLatency,
-  setIsAdjustingLatency,
-  handleSliderPointerMove,
-  popoverPosition,
-}: {
-  selectedProviders: string[];
-  setSelectedProviders: React.Dispatch<React.SetStateAction<string[]>>;
-  totalSaved: number;
-  totalTokens: number;
-  costPreference: number;
-  setCostPreference: React.Dispatch<React.SetStateAction<number>>;
-  qualityPreference: number;
-  setQualityPreference: React.Dispatch<React.SetStateAction<number>>;
-  latencyPreference: number;
-  setLatencyPreference: React.Dispatch<React.SetStateAction<number>>;
-  isAdjustingCost: boolean;
-  setIsAdjustingCost: React.Dispatch<React.SetStateAction<boolean>>;
-  isAdjustingQuality: boolean;
-  setIsAdjustingQuality: React.Dispatch<React.SetStateAction<boolean>>;
-  isAdjustingLatency: boolean;
-  setIsAdjustingLatency: React.Dispatch<React.SetStateAction<boolean>>;
-  handleSliderPointerMove: (event: React.PointerEvent<HTMLSpanElement>) => void;
-  popoverPosition: { x: number; y: number };
-}): JSX.Element {
-  return (
-    <div className="flex flex-col h-full">
-      <ScrollArea className="flex-grow">
-        <div className="p-4">
-          <Button
-            variant="outline"
-            className="w-full justify-start mb-4 text-black"
-          >
-            <Plus className="mr-2 h-4 w-4" /> New Room
-          </Button>
-          {[
-            "how to download goo...",
-            "how to look at error lo...",
-            "what does cohere do ...",
-          ].map((room, index) => (
-            <Button
-              key={index}
-              variant="ghost"
-              className="w-full justify-start mb-2 text-left text-black"
-            >
-              {room}
-            </Button>
-          ))}
-        </div>
-      </ScrollArea>
-      <div className="p-4 border-t">
-        <div className="flex items-center mb-4">
-          <DollarSign className="w-4 h-4 mr-2 text-green-500" />
-          <span className="text-sm font-medium text-black">
-            ${formatNumber(totalSaved)} saved
-          </span>
-        </div>
-        <div className="flex items-center mb-4">
-          <Hash className="w-4 h-4 mr-2 text-blue-500" />
-          <span className="text-sm font-medium text-black">
-            {totalTokens} tokens
-          </span>
-        </div>
-        <div className="space-y-4 mb-4">
-          <div>
-            <label className="text-sm font-medium mb-1 block text-black">
-              Cost
-            </label>
-            <Popover open={isAdjustingCost}>
-              <PopoverTrigger asChild>
-                <Slider
-                  value={[costPreference]}
-                  onValueChange={(value) => setCostPreference(value[0])}
-                  onValueCommit={() => setIsAdjustingCost(false)}
-                  max={100}
-                  step={1}
-                  onPointerDown={() => setIsAdjustingCost(true)}
-                  onPointerUp={() => setIsAdjustingCost(false)}
-                  onPointerMove={handleSliderPointerMove}
-                  className="w-full"
-                />
-              </PopoverTrigger>
-              <PopoverContent
-                className="px-2 py-1 w-auto h-auto text-xs transition-all duration-100"
-                style={{
-                  position: "absolute",
-                  left: `${popoverPosition.x}px`,
-                  top: `${popoverPosition.y}px`,
-                  transform: "translateX(-50%)",
-                }}
-              >
-                {costPreference}
-              </PopoverContent>
-            </Popover>
-          </div>
-          <div>
-            <label className="text-sm font-medium mb-1 block text-black">
-              Quality
-            </label>
-            <Popover open={isAdjustingQuality}>
-              <PopoverTrigger asChild>
-                <Slider
-                  value={[qualityPreference]}
-                  onValueChange={(value) => setQualityPreference(value[0])}
-                  onValueCommit={() => setIsAdjustingQuality(false)}
-                  max={100}
-                  step={1}
-                  onPointerDown={() => setIsAdjustingQuality(true)}
-                  onPointerUp={() => setIsAdjustingQuality(false)}
-                  onPointerMove={handleSliderPointerMove}
-                  className="w-full"
-                />
-              </PopoverTrigger>
-              <PopoverContent
-                className="px-2 py-1 w-auto h-auto text-xs transition-all duration-100"
-                style={{
-                  position: "absolute",
-                  left: `${popoverPosition.x}px`,
-                  top: `${popoverPosition.y}px`,
-                  transform: "translateX(-50%)",
-                }}
-              >
-                {qualityPreference}
-              </PopoverContent>
-            </Popover>
-          </div>
-          <div>
-            <label className="text-sm font-medium mb-1 block text-black">
-              Latency
-            </label>
-            <Popover open={isAdjustingLatency}>
-              <PopoverTrigger asChild>
-                <Slider
-                  value={[latencyPreference]}
-                  onValueChange={(value) => setLatencyPreference(value[0])}
-                  onValueCommit={() => setIsAdjustingLatency(false)}
-                  max={100}
-                  step={1}
-                  onPointerDown={() => setIsAdjustingLatency(true)}
-                  onPointerUp={() => setIsAdjustingLatency(false)}
-                  onPointerMove={handleSliderPointerMove}
-                  className="w-full"
-                />
-              </PopoverTrigger>
-              <PopoverContent
-                className="px-2 py-1 w-auto h-auto text-xs transition-all duration-100"
-                style={{
-                  position: "absolute",
-                  left: `${popoverPosition.x}px`,
-                  top: `${popoverPosition.y}px`,
-                  transform: "translateX(-50%)",
-                }}
-              >
-                {latencyPreference}
-              </PopoverContent>
-            </Popover>
-          </div>
-        </div>
-        <div className="mt-4">
-          <ComboboxComponent
-            providers={LLM_PROVIDERS}
-            onSelectedValuesChange={(values) => setSelectedProviders(values)}
-            initialSelectedValues={selectedProviders}
-          />
-        </div>
-      </div>
-    </div>
   );
 }
