@@ -18,7 +18,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Badge } from "@/components/ui/badge"; // Add this import
 
 interface Provider {
   name: string;
@@ -59,7 +58,7 @@ export function Combobox({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-[200px] justify-between"
+            className="w-[200px] justify-between text-black"
           >
             {selectedValues.length > 0
               ? `${selectedValues.length} selected`
@@ -96,17 +95,6 @@ export function Combobox({
           </Command>
         </PopoverContent>
       </Popover>
-      <div className="flex flex-wrap gap-2">
-        {selectedValues.map((provider) => (
-          <Badge
-            key={provider}
-            variant="secondary"
-            className="text-xs text-black"
-          >
-            {provider}
-          </Badge>
-        ))}
-      </div>
     </div>
   );
 }

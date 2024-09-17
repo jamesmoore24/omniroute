@@ -13,11 +13,10 @@ import {
   Loader2,
   Menu,
   HelpCircle,
-  Layers,
   X,
 } from "lucide-react";
 import { Header } from "@/components/Header";
-import { Combobox } from "@/components/ui/combobox";
+import { Combobox as ComboboxComponent } from "@/components/ui/combobox";
 import {
   Popover,
   PopoverContent,
@@ -311,7 +310,7 @@ export default function Component() {
         <div className="flex flex-1 overflow-hidden">
           {/* Main Chat Area */}
           <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
-            <div className="bg-gray-50 p-4 border-b flex items-center space-x-4 relative z-10">
+            <div className="p-4 flex items-center justify-between">
               {/* Sidebar Toggle */}
               <Sheet>
                 <SheetTrigger asChild>
@@ -321,6 +320,8 @@ export default function Component() {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-64 p-0 bg-white">
                   <SidebarContent
+                    selectedProviders={selectedProviders}
+                    setSelectedProviders={setSelectedProviders}
                     totalSaved={totalSaved}
                     totalTokens={totalTokens}
                     costPreference={costPreference}
@@ -341,55 +342,47 @@ export default function Component() {
                 </SheetContent>
               </Sheet>
 
-              <div className="flex-1 flex items-center justify-between">
-                <Combobox
-                  providers={LLM_PROVIDERS}
-                  onSelectedValuesChange={(values) =>
-                    setSelectedProviders(values)
-                  }
-                  initialSelectedValues={selectedProviders}
-                />
-                <div className="flex items-center space-x-2">
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleAddModelComparison}
-                      >
-                        <Layers className="h-4 w-4 mr-2" />
-                        Add Window ({chatWindows.length})
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Add a new model comparison window</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <HelpCircle className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs">
-                        Model routing automatically selects the{" "}
-                        <b>best AI model </b>
-                        between the selected providers based on your preferences
-                        for cost, quality, and latency. This ensures optimal
-                        performance for each query.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+              <div className="flex items-center space-x-2">
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleAddModelComparison}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Add a new model comparison window</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <HelpCircle className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">
+                      Model routing automatically selects the{" "}
+                      <b>best AI model </b>
+                      between the selected providers based on your preferences
+                      for cost, quality, and latency. This ensures optimal
+                      performance for each query.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
             <div className="flex-1 overflow-auto">
               <div className="flex flex-wrap h-full">
-                {chatWindows.map((window) => (
+                {chatWindows.map((window, index) => (
                   <div
                     key={window.id}
-                    className="flex-1 flex flex-col border-r border-b min-w-[300px] h-full relative"
+                    className={`flex-1 flex flex-col min-w-[300px] h-full relative ${
+                      index > 0 ? "border-l border-gray-200" : ""
+                    }`}
                   >
                     {window.id !== "main" && (
                       <Button
@@ -402,14 +395,14 @@ export default function Component() {
                       </Button>
                     )}
                     <div className="flex-1 overflow-y-auto p-4">
-                      {window.messages.map((msg, index) => (
+                      {window.messages.map((msg, msgIndex) => (
                         <div
                           key={msg.id}
                           className={`flex ${
                             msg.sender === "user"
                               ? "justify-end"
                               : "justify-start"
-                          } ${index > 0 ? "mt-6" : ""}`}
+                          } ${msgIndex > 0 ? "mt-6" : ""}`}
                         >
                           <div
                             className={`flex flex-col ${
@@ -488,7 +481,11 @@ export default function Component() {
                           </div>
                         </div>
                       ))}
-                      <div ref={(el) => (scrollRefs.current[window.id] = el)} />
+                      <div
+                        ref={(el) => {
+                          scrollRefs.current[window.id] = el;
+                        }}
+                      />
                     </div>
                   </div>
                 ))}
@@ -531,6 +528,8 @@ export default function Component() {
 }
 
 function SidebarContent({
+  selectedProviders,
+  setSelectedProviders,
   totalSaved,
   totalTokens,
   costPreference,
@@ -548,6 +547,8 @@ function SidebarContent({
   handleSliderPointerMove,
   popoverPosition,
 }: {
+  selectedProviders: string[];
+  setSelectedProviders: React.Dispatch<React.SetStateAction<string[]>>;
   totalSaved: number;
   totalTokens: number;
   costPreference: number;
@@ -566,7 +567,7 @@ function SidebarContent({
   popoverPosition: { x: number; y: number };
 }): JSX.Element {
   return (
-    <>
+    <div className="flex flex-col h-full">
       <ScrollArea className="flex-grow">
         <div className="p-4">
           <Button
@@ -603,7 +604,7 @@ function SidebarContent({
             {totalTokens} tokens
           </span>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-4 mb-4">
           <div>
             <label className="text-sm font-medium mb-1 block text-black">
               Cost
@@ -643,9 +644,7 @@ function SidebarContent({
               <PopoverTrigger asChild>
                 <Slider
                   value={[qualityPreference]}
-                  onValueChange={(value: number[]) =>
-                    setQualityPreference(value[0])
-                  }
+                  onValueChange={(value) => setQualityPreference(value[0])}
                   onValueCommit={() => setIsAdjustingQuality(false)}
                   max={100}
                   step={1}
@@ -700,7 +699,14 @@ function SidebarContent({
             </Popover>
           </div>
         </div>
+        <div className="mt-4">
+          <ComboboxComponent
+            providers={LLM_PROVIDERS}
+            onSelectedValuesChange={(values) => setSelectedProviders(values)}
+            initialSelectedValues={selectedProviders}
+          />
+        </div>
       </div>
-    </>
+    </div>
   );
 }
