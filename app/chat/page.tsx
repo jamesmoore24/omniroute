@@ -13,6 +13,8 @@ import {
   Loader2,
   Menu,
   HelpCircle,
+  Layers,
+  X,
 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Combobox } from "@/components/ui/combobox";
@@ -61,9 +63,18 @@ const formatNumber = (num: number): string => {
   return num.toFixed(precision).replace(/\.?0+$/, "");
 };
 
+type ChatWindow = {
+  id: string;
+  messages: Message[];
+  selectedProvider: string | null;
+};
+
 export default function Component() {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [chatWindows, setChatWindows] = useState<ChatWindow[]>([
+    { id: "main", messages: [], selectedProvider: null },
+  ]);
+  const [activeWindow, setActiveWindow] = useState<string>("main");
   const [selectedProviders, setSelectedProviders] = useState<string[]>(
     LLM_PROVIDERS.map((provider) => provider.name)
   );
@@ -78,15 +89,35 @@ export default function Component() {
   const [isAdjustingLatency, setIsAdjustingLatency] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (windowId: string) => {
+    if (scrollRefs.current[windowId]) {
+      scrollRefs.current[windowId]?.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    chatWindows.forEach((window) => {
+      scrollToBottom(window.id);
+    });
+  }, [chatWindows]);
+
+  const handleAddModelComparison = () => {
+    const newWindow: ChatWindow = {
+      id: `window-${Date.now()}`,
+      messages: [],
+      selectedProvider: null,
+    };
+    setChatWindows((prev) => [...prev, newWindow]);
+  };
+
+  const handleCloseWindow = (id: string) => {
+    setChatWindows((prev) => prev.filter((window) => window.id !== id));
+    if (activeWindow === id) {
+      setActiveWindow("main");
+    }
+  };
 
   const handleSendMessage = async () => {
     if (message.trim() && selectedProviders.length > 0) {
@@ -95,123 +126,171 @@ export default function Component() {
         content: message,
         sender: "user" as const,
       };
-      setMessages((prev) => [...prev, newUserMessage]);
+
+      setChatWindows((prev) =>
+        prev.map((window) => ({
+          ...window,
+          messages: [...window.messages, newUserMessage],
+        }))
+      );
+
       setMessage("");
 
-      const newAiMessage: Message = {
-        id: Date.now() + 1,
-        content: "",
-        sender: "ai",
-        provider:
+      for (const window of chatWindows) {
+        const provider =
+          window.selectedProvider ||
           selectedProviders[
             Math.floor(Math.random() * selectedProviders.length)
-          ],
-        isLoading: true,
-        providerRevealed: false,
-      };
-      setMessages((prev) => [...prev, newAiMessage]);
+          ];
+        const newAiMessage: Message = {
+          id: Date.now() + 1,
+          content: "",
+          sender: "ai",
+          provider: provider,
+          isLoading: true,
+          providerRevealed: false,
+        };
 
-      const startTime = Date.now();
+        setChatWindows((prev) =>
+          prev.map((w) =>
+            w.id === window.id
+              ? { ...w, messages: [...w.messages, newAiMessage] }
+              : w
+          )
+        );
 
-      try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: newUserMessage.content,
-            provider: newAiMessage.provider,
-          }),
-        });
+        const startTime = Date.now();
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch response");
-        }
+        try {
+          const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: newUserMessage.content,
+              provider: newAiMessage.provider,
+            }),
+          });
 
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        let aiResponseContent = "";
-        let tokenCount = 0;
-
-        while (true) {
-          const { done, value } = await reader!.read();
-          if (done) break;
-          const chunk = decoder.decode(value);
-
-          if (chunk.includes("TOKEN_COUNT:")) {
-            const [content, count] = chunk.split("TOKEN_COUNT:");
-            aiResponseContent += content;
-            tokenCount = parseInt(count.trim(), 10);
-          } else {
-            aiResponseContent += chunk;
+          if (!response.ok) {
+            throw new Error("Failed to fetch response");
           }
 
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === newAiMessage.id
+          const reader = response.body?.getReader();
+          const decoder = new TextDecoder();
+          let aiResponseContent = "";
+          let tokenCount = 0;
+
+          while (true) {
+            const { done, value } = await reader!.read();
+            if (done) break;
+            const chunk = decoder.decode(value);
+
+            if (chunk.includes("TOKEN_COUNT:")) {
+              const [content, count] = chunk.split("TOKEN_COUNT:");
+              aiResponseContent += content;
+              tokenCount = parseInt(count.trim(), 10);
+            } else {
+              aiResponseContent += chunk;
+            }
+
+            setChatWindows((prev) =>
+              prev.map((w) =>
+                w.id === window.id
+                  ? {
+                      ...w,
+                      messages: w.messages.map((msg) =>
+                        msg.id === newAiMessage.id
+                          ? {
+                              ...msg,
+                              content: aiResponseContent,
+                              isLoading: false,
+                              providerRevealed: true,
+                            }
+                          : msg
+                      ),
+                    }
+                  : w
+              )
+            );
+          }
+
+          const endTime = Date.now();
+          const latency = endTime - startTime;
+          const tokensPerSecond = (tokenCount / latency) * 1000; // Convert to tokens per second
+
+          // Find the most expensive selected provider
+          const selectedProvidersCost = selectedProviders.map(
+            (name) => LLM_PROVIDERS.find((p) => p.name === name)!.costPerToken
+          );
+          const mostExpensiveProviderCost = Math.max(...selectedProvidersCost);
+
+          // Update metrics after the full response is received
+          const usedProvider = LLM_PROVIDERS.find(
+            (p) => p.name === newAiMessage.provider
+          )!;
+          const cost = tokenCount * usedProvider.costPerToken;
+          const savedCost =
+            tokenCount *
+            (mostExpensiveProviderCost - usedProvider.costPerToken);
+
+          setTotalTokens((prev) => prev + tokenCount);
+          setTotalSaved((prev) => prev + savedCost);
+
+          setChatWindows((prev) =>
+            prev.map((w) =>
+              w.id === window.id
                 ? {
-                    ...msg,
-                    content: aiResponseContent,
-                    isLoading: false,
-                    providerRevealed: true,
+                    ...w,
+                    messages: w.messages.map((msg) =>
+                      msg.id === newAiMessage.id
+                        ? {
+                            ...msg,
+                            metrics: {
+                              tokens: tokenCount,
+                              tokensPerSecond: parseFloat(
+                                tokensPerSecond.toFixed(2)
+                              ),
+                              latency: latency.toFixed(2),
+                              cost: cost.toFixed(6),
+                              saved: savedCost.toFixed(6),
+                            },
+                          }
+                        : msg
+                    ),
                   }
-                : msg
+                : w
+            )
+          );
+        } catch (error) {
+          console.error("Error calling API:", error);
+          setChatWindows((prev) =>
+            prev.map((w) =>
+              w.id === window.id
+                ? {
+                    ...w,
+                    messages: w.messages.map((msg) =>
+                      msg.id === newAiMessage.id
+                        ? {
+                            ...msg,
+                            content:
+                              "Sorry, there was an error generating the response.",
+                            isLoading: false,
+                          }
+                        : msg
+                    ),
+                  }
+                : w
             )
           );
         }
-
-        const endTime = Date.now();
-        const latency = endTime - startTime;
-        const tokensPerSecond = (tokenCount / latency) * 1000; // Convert to tokens per second
-
-        // Find the most expensive selected provider
-        const selectedProvidersCost = selectedProviders.map(
-          (name) => LLM_PROVIDERS.find((p) => p.name === name)!.costPerToken
-        );
-        const mostExpensiveProviderCost = Math.max(...selectedProvidersCost);
-
-        // Update metrics after the full response is received
-        const usedProvider = LLM_PROVIDERS.find(
-          (p) => p.name === newAiMessage.provider
-        )!;
-        const cost = tokenCount * usedProvider.costPerToken;
-        const savedCost =
-          tokenCount * (mostExpensiveProviderCost - usedProvider.costPerToken);
-
-        setTotalTokens((prev) => prev + tokenCount);
-        setTotalSaved((prev) => prev + savedCost);
-
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === newAiMessage.id
-              ? {
-                  ...msg,
-                  metrics: {
-                    tokens: tokenCount,
-                    tokensPerSecond: parseFloat(tokensPerSecond.toFixed(2)),
-                    latency: latency.toFixed(2),
-                    cost: cost.toFixed(6),
-                    saved: savedCost.toFixed(6),
-                  },
-                }
-              : msg
-          )
-        );
-      } catch (error) {
-        console.error("Error calling API:", error);
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === newAiMessage.id
-              ? {
-                  ...msg,
-                  content: "Sorry, there was an error generating the response.",
-                  isLoading: false,
-                }
-              : msg
-          )
-        );
       }
+
+      // Scroll to bottom after updating the state
+      chatWindows.forEach((window) => {
+        scrollToBottom(window.id);
+      });
     }
   };
 
@@ -230,35 +309,13 @@ export default function Component() {
       <div className="flex flex-col h-screen bg-gray-100 text-black">
         <Header />
         <div className="flex flex-1 overflow-hidden">
-          {/* Desktop Sidebar */}
-          <div className="hidden lg:flex w-64 bg-white flex-col overflow-hidden border-r">
-            <SidebarContent
-              totalSaved={totalSaved}
-              totalTokens={totalTokens}
-              costPreference={costPreference}
-              setCostPreference={setCostPreference}
-              qualityPreference={qualityPreference}
-              setQualityPreference={setQualityPreference}
-              latencyPreference={latencyPreference}
-              setLatencyPreference={setLatencyPreference}
-              isAdjustingCost={isAdjustingCost}
-              setIsAdjustingCost={setIsAdjustingCost}
-              isAdjustingQuality={isAdjustingQuality}
-              setIsAdjustingQuality={setIsAdjustingQuality}
-              isAdjustingLatency={isAdjustingLatency}
-              setIsAdjustingLatency={setIsAdjustingLatency}
-              handleSliderPointerMove={handleSliderPointerMove}
-              popoverPosition={popoverPosition}
-            />
-          </div>
-
           {/* Main Chat Area */}
           <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
             <div className="bg-gray-50 p-4 border-b flex items-center space-x-4 relative z-10">
-              {/* Mobile Sidebar Toggle */}
+              {/* Sidebar Toggle */}
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="lg:hidden">
+                  <Button variant="outline" size="icon">
                     <Menu className="h-4 w-4" />
                   </Button>
                 </SheetTrigger>
@@ -292,135 +349,179 @@ export default function Component() {
                   }
                   initialSelectedValues={selectedProviders}
                 />
-                <Tooltip delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <HelpCircle className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">
-                      Model routing automatically selects the{" "}
-                      <b>best AI model </b>
-                      between the selected providers based on your preferences
-                      for cost, quality, and latency. This ensures optimal
-                      performance for each query.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
+                <div className="flex items-center space-x-2">
+                  <Tooltip delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleAddModelComparison}
+                      >
+                        <Layers className="h-4 w-4 mr-2" />
+                        Add Window ({chatWindows.length})
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Add a new model comparison window</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <HelpCircle className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">
+                        Model routing automatically selects the{" "}
+                        <b>best AI model </b>
+                        between the selected providers based on your preferences
+                        for cost, quality, and latency. This ensures optimal
+                        performance for each query.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
             </div>
-            <div className="flex-1 overflow-hidden flex flex-col">
-              <ScrollArea className="flex-1 p-4">
-                <div className="space-y-6">
-                  {messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex ${
-                        msg.sender === "user" ? "justify-end" : "justify-start"
-                      }`}
-                    >
-                      <div
-                        className={`flex flex-col ${
-                          msg.sender === "user" ? "items-end" : "items-start"
-                        } ${msg.sender === "user" ? "max-w-[80%]" : "w-full"}`}
-                      >
-                        <div
-                          className={`p-4 rounded-lg shadow ${
-                            msg.sender === "user"
-                              ? "bg-orange-100"
-                              : "bg-gray-50"
-                          } ${msg.sender === "user" ? "w-full" : "w-full"}`}
-                        >
-                          {msg.sender === "ai" && msg.provider && (
-                            <div className="text-xs text-gray-500 mb-2">
-                              {msg.providerRevealed
-                                ? msg.provider
-                                : "Loading..."}
-                            </div>
-                          )}
-                          {msg.isLoading ? (
-                            <div className="flex items-center space-x-2">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              <span>
-                                Routing response to the best provider...
-                              </span>
-                            </div>
-                          ) : (
-                            <p
-                              className={`text-black ${
-                                msg.sender === "user"
-                                  ? "text-center"
-                                  : "text-left"
-                              }`}
-                            >
-                              {msg.content}
-                            </p>
-                          )}
-                          {msg.sender === "ai" && msg.metrics && (
-                            <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200 flex flex-wrap gap-2">
-                              <span>
-                                Tokens: {formatNumber(msg.metrics.tokens)}
-                              </span>
-                              <span>•</span>
-                              <span>
-                                {formatNumber(msg.metrics.tokensPerSecond)}{" "}
-                                tokens/sec
-                              </span>
-                              <span>•</span>
-                              <span>
-                                Latency:{" "}
-                                {formatNumber(parseFloat(msg.metrics.latency))}
-                                ms
-                              </span>
-                              <span>•</span>
-                              <span>
-                                Cost: $
-                                {formatNumber(parseFloat(msg.metrics.cost))}
-                              </span>
-                              <span>•</span>
-                              <span>
-                                Saved: $
-                                {formatNumber(parseFloat(msg.metrics.saved))}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />{" "}
-                </div>
-              </ScrollArea>
-              <div className="p-4 bg-gray-50 border-t">
-                <form
-                  className="flex items-center"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }}
-                >
-                  <Input
-                    placeholder="Start a message..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                    className="flex-1 mr-2 text-black"
-                  />
-                  <Button
-                    type="submit"
-                    size="icon"
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
+            <div className="flex-1 overflow-auto">
+              <div className="flex flex-wrap h-full">
+                {chatWindows.map((window) => (
+                  <div
+                    key={window.id}
+                    className="flex-1 flex flex-col border-r border-b min-w-[300px] h-full relative"
                   >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </form>
+                    {window.id !== "main" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-2 right-2 z-10"
+                        onClick={() => handleCloseWindow(window.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <div className="flex-1 overflow-y-auto p-4">
+                      {window.messages.map((msg, index) => (
+                        <div
+                          key={msg.id}
+                          className={`flex ${
+                            msg.sender === "user"
+                              ? "justify-end"
+                              : "justify-start"
+                          } ${index > 0 ? "mt-6" : ""}`}
+                        >
+                          <div
+                            className={`flex flex-col ${
+                              msg.sender === "user"
+                                ? "items-end"
+                                : "items-start"
+                            } ${
+                              msg.sender === "user" ? "max-w-[80%]" : "w-full"
+                            }`}
+                          >
+                            <div
+                              className={`p-4 rounded-lg shadow ${
+                                msg.sender === "user"
+                                  ? "bg-orange-100"
+                                  : "bg-gray-50"
+                              } ${msg.sender === "user" ? "w-full" : "w-full"}`}
+                            >
+                              {msg.sender === "ai" && msg.provider && (
+                                <div className="text-xs text-gray-500 mb-2">
+                                  {msg.providerRevealed
+                                    ? msg.provider
+                                    : "Loading..."}
+                                </div>
+                              )}
+                              {msg.isLoading ? (
+                                <div className="flex items-center space-x-2">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <span>
+                                    Routing response to the best provider...
+                                  </span>
+                                </div>
+                              ) : (
+                                <p
+                                  className={`text-black ${
+                                    msg.sender === "user"
+                                      ? "text-center"
+                                      : "text-left"
+                                  }`}
+                                >
+                                  {msg.content}
+                                </p>
+                              )}
+                              {msg.sender === "ai" && msg.metrics && (
+                                <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200 flex flex-wrap gap-2">
+                                  <span>
+                                    Tokens: {formatNumber(msg.metrics.tokens)}
+                                  </span>
+                                  <span>•</span>
+                                  <span>
+                                    {formatNumber(msg.metrics.tokensPerSecond)}{" "}
+                                    tokens/sec
+                                  </span>
+                                  <span>•</span>
+                                  <span>
+                                    Latency:{" "}
+                                    {formatNumber(
+                                      parseFloat(msg.metrics.latency)
+                                    )}
+                                    ms
+                                  </span>
+                                  <span>•</span>
+                                  <span>
+                                    Cost: $
+                                    {formatNumber(parseFloat(msg.metrics.cost))}
+                                  </span>
+                                  <span>•</span>
+                                  <span>
+                                    Saved: $
+                                    {formatNumber(
+                                      parseFloat(msg.metrics.saved)
+                                    )}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <div ref={(el) => (scrollRefs.current[window.id] = el)} />
+                    </div>
+                  </div>
+                ))}
               </div>
+            </div>
+            <div className="p-4 bg-gray-50 border-t">
+              <form
+                className="flex items-center"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendMessage();
+                }}
+              >
+                <Input
+                  placeholder="Start a message..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  className="flex-1 mr-2 text-black"
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
             </div>
           </div>
         </div>
