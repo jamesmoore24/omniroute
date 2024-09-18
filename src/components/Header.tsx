@@ -24,7 +24,14 @@ export const Header: React.FC = () => {
             Docs
           </Button>
           <SignedOut>
-            <SignInButton />
+            <SignInButton mode="modal">
+              <Button
+                variant="ghost"
+                className="text-black hover:text-orange-500"
+              >
+                Sign In
+              </Button>
+            </SignInButton>
           </SignedOut>
           <SignedIn>
             <UserButton />
