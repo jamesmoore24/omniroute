@@ -13,40 +13,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import SidebarContent from "@/components/Chat/ChatSideBar";
+import ChatWindow from "@/components/Chat/ChatWindow";
 import { LLM_PROVIDERS } from "@/data/aiData";
 import { formatNumber } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
-import CountUp from "react-countup";
-import { ChatWindow } from "@/components/Chat/ChatWindow";
-
-type Message = {
-  id: number;
-  content: string;
-  sender: "user" | "ai";
-  provider?: string;
-  metrics?: {
-    tokens: number;
-    tokensPerSecond: number;
-    latency: string;
-    cost: string;
-    saved: string;
-  };
-  isLoading?: boolean;
-  providerRevealed?: boolean;
-};
-
-// Helper function to format numbers
-
-type ChatWindow = {
-  id: string;
-  messages: Message[];
-  selectedProvider: string | null;
-};
+import { ChatWindowType, Message } from "@/types/chat";
+import { calculateTokens } from "@/lib/utils";
 
 export default function Component() {
   const { isSignedIn } = useAuth();
   const [query, setQuery] = useState("");
-  const [chatWindows, setChatWindows] = useState<ChatWindow[]>([
+  const [chatWindows, setChatWindows] = useState<ChatWindowType[]>([
     { id: "main", messages: [], selectedProvider: null },
   ]);
   const [activeWindow, setActiveWindow] = useState<string>("main");
@@ -56,8 +33,6 @@ export default function Component() {
   const [totalSaved, setTotalSaved] = useState(0);
   const [totalTokens, setTotalTokens] = useState(0);
   const [showMessageStats, setShowMessageStats] = useState(true);
-  const [prevTotalTokens, setPrevTotalTokens] = useState(0);
-  const [prevTotalSaved, setPrevTotalSaved] = useState(0);
 
   const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -73,24 +48,9 @@ export default function Component() {
     });
   }, [chatWindows]);
 
-  useEffect(() => {
-    setPrevTotalTokens(totalTokens);
-  }, [totalTokens]);
-
-  useEffect(() => {
-    setPrevTotalSaved(totalSaved);
-  }, [totalSaved]);
-
-  const formatSaved = (value: number) => {
-    if (value < 0.01) return value.toFixed(6);
-    if (value < 0.1) return value.toFixed(4);
-    if (value < 1) return value.toFixed(3);
-    return value.toFixed(2);
-  };
-
   const handleAddModelComparison = () => {
     if (chatWindows.length < 4) {
-      const newWindow: ChatWindow = {
+      const newWindow: ChatWindowType = {
         id: `window-${Date.now()}`,
         messages: [],
         selectedProvider: null,
@@ -173,17 +133,31 @@ export default function Component() {
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let aiResponseContent = "";
-        let tokenCount = 0;
+        let mappedUsage: {
+          inputTokens: number;
+          outputTokens: number;
+          totalTokens: number;
+          reasoningTokens: number;
+        } | null = null;
 
         while (true) {
           const { done, value } = await reader!.read();
           if (done) break;
           const chunk = decoder.decode(value);
 
-          if (chunk.includes("TOKEN_COUNT:")) {
-            const [content, count] = chunk.split("TOKEN_COUNT:");
+          if (chunk.includes("USAGE_INFO:")) {
+            const [content, usageInfo] = chunk.split("USAGE_INFO:");
             aiResponseContent += content;
-            tokenCount = parseInt(count.trim(), 10);
+            const usage = JSON.parse(usageInfo);
+
+            // Map the values
+            mappedUsage = {
+              inputTokens: usage.prompt_tokens,
+              outputTokens: usage.completion_tokens,
+              totalTokens: usage.total_tokens,
+              reasoningTokens: usage.completion_tokens_details.reasoning_tokens,
+            };
+            console.log("mappedUsage", mappedUsage);
           } else {
             aiResponseContent += chunk;
           }
@@ -209,19 +183,29 @@ export default function Component() {
           );
         }
 
-        // Calculate savings after the full response is received
         const usedProvider = LLM_PROVIDERS.find(
           (p) => p.name === newAiMessage.provider
         )!;
-        const cost = tokenCount * usedProvider.costPerToken;
-        const mostExpensiveProviderCost = Math.max(
-          ...LLM_PROVIDERS.map((p) => p.costPerToken)
-        ); // Add this line
+        console.log(mappedUsage);
+        const inputTokens = mappedUsage!.inputTokens ?? "N/A";
+        const outputTokens = mappedUsage!.outputTokens ?? "N/A";
+        const inputCost = inputTokens * usedProvider.inputCostPerToken;
+        const outputCost = outputTokens * usedProvider.outputCostPerToken;
+        const totalCost = inputCost + outputCost;
+        const mostExpensiveProviderInputCost = Math.max(
+          ...LLM_PROVIDERS.map((p) => p.inputCostPerToken)
+        );
+        const mostExpensiveProviderOutputCost = Math.max(
+          ...LLM_PROVIDERS.map((p) => p.outputCostPerToken)
+        );
         const savedCost =
-          tokenCount * (mostExpensiveProviderCost - usedProvider.costPerToken);
+          inputTokens *
+            (mostExpensiveProviderInputCost - usedProvider.inputCostPerToken) +
+          outputTokens *
+            (mostExpensiveProviderOutputCost - usedProvider.outputCostPerToken);
 
         // Update total tokens and total savings
-        setTotalTokens((prev) => prev + tokenCount);
+        setTotalTokens((prev) => prev + inputTokens + outputTokens);
         setTotalSaved((prev) => prev + savedCost);
 
         setChatWindows((prev) =>
@@ -234,15 +218,17 @@ export default function Component() {
                       ? {
                           ...msg,
                           metrics: {
-                            tokens: tokenCount,
+                            inputTokens,
+                            outputTokens,
                             tokensPerSecond: parseFloat(
                               (
-                                (tokenCount / (Date.now() - startTime)) *
+                                ((inputTokens + outputTokens) /
+                                  (Date.now() - startTime)) *
                                 1000
                               ).toFixed(2)
                             ),
                             latency: (Date.now() - startTime).toFixed(2),
-                            cost: cost.toFixed(6),
+                            cost: totalCost.toFixed(6),
                             saved: savedCost.toFixed(6),
                           },
                         }
@@ -303,21 +289,10 @@ export default function Component() {
 
               <div className="flex items-center space-x-4">
                 <div className="text-sm text-gray-600">
-                  Tokens:{" "}
-                  <CountUp
-                    start={prevTotalTokens}
-                    end={totalTokens}
-                    separator=","
-                    formattingFn={formatNumber}
-                  />
+                  Total Tokens: {formatNumber(totalTokens)}
                 </div>
                 <div className="text-sm text-gray-600">
-                  Saved: $
-                  <CountUp
-                    start={prevTotalSaved}
-                    end={totalSaved}
-                    formattingFn={formatSaved}
-                  />
+                  Saved: ${totalSaved.toFixed(6)}
                 </div>
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>

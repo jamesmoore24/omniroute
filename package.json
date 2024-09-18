@@ -27,6 +27,7 @@
     "dotenv": "^16.4.5",
     "google-auth-library": "^9.14.1",
     "google-spreadsheet": "^4.1.4",
+    "js-tiktoken": "^1.0.14",
     "lucia": "^3.2.0",
     "lucide-react": "^0.439.0",
     "next": "14.2.10",
@@ -37,7 +38,6 @@
     "react-dom": "^18",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "tiktoken": "^1.0.16",
     "tslib": "^2.7.0"
   },
   "devDependencies": {

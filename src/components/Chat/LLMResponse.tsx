@@ -1,23 +1,9 @@
 import React from "react";
 import { Loader2 } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
+import { Message } from "@/types/chat";
 
-interface LLMResponseProps {
-  provider: string;
-  content: string;
-  isLoading: boolean;
-  providerRevealed: boolean;
-  metrics?: {
-    tokens: number;
-    tokensPerSecond: number;
-    latency: string;
-    cost: string;
-    saved: string;
-  };
-  showMessageStats: boolean;
-}
-
-export const LLMResponse: React.FC<LLMResponseProps> = ({
+export const LLMResponse: React.FC<Message> = ({
   provider,
   content,
   isLoading,
@@ -42,7 +28,9 @@ export const LLMResponse: React.FC<LLMResponseProps> = ({
       )}
       {metrics && showMessageStats && (
         <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200 flex flex-wrap gap-2">
-          <span>Tokens: {formatNumber(metrics.tokens)}</span>
+          <span>Input Tokens: {formatNumber(metrics.inputTokens)}</span>
+          <span>•</span>
+          <span>Output Tokens: {formatNumber(metrics.outputTokens)}</span>
           <span>•</span>
           <span>{formatNumber(metrics.tokensPerSecond)} tokens/sec</span>
           <span>•</span>

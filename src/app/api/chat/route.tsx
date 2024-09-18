@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { calculateTokens } from "@/lib/utils";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -8,10 +9,6 @@ const openai = new OpenAI({
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
-  let tokenCount = 0;
-
-  console.log("messages", messages);
-
   const stream = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
@@ -19,17 +16,27 @@ export async function POST(req: Request) {
       ...messages, // Include the conversation history here
     ],
     stream: true,
+    stream_options: {
+      include_usage: true,
+    },
   });
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream({
     async start(controller) {
+      let usageInfo = null;
       for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || "";
-        tokenCount += content.split(/\s+/).length; // Simple token count estimation
-        controller.enqueue(encoder.encode(content));
+        if (chunk.usage) {
+          // This is the special chunk with usage statistics
+          usageInfo = chunk.usage;
+          controller.enqueue(
+            encoder.encode(`\n\nUSAGE_INFO:${JSON.stringify(usageInfo)}`)
+          );
+        } else {
+          const content = chunk.choices[0]?.delta?.content || "";
+          controller.enqueue(encoder.encode(content));
+        }
       }
-      controller.enqueue(encoder.encode(`\n\nTOKEN_COUNT:${tokenCount}`));
       controller.close();
     },
   });

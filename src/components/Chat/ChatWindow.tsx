@@ -2,38 +2,15 @@ import React, { useRef, useEffect } from "react";
 import { Button } from "antd";
 import { X } from "lucide-react";
 import { LLMResponse } from "./LLMResponse";
+import { ChatWindowProps } from "@/types";
 
-interface Message {
-  id: number;
-  content: string;
-  sender: "user" | "ai";
-  provider?: string;
-  isLoading?: boolean;
-  providerRevealed?: boolean;
-  metrics?: {
-    tokens: number;
-    tokensPerSecond: number;
-    latency: string;
-    cost: string;
-    saved: string;
-  };
-}
-
-interface ChatWindowProps {
-  id: string;
-  messages: Message[];
-  showMessageStats: boolean;
-  onClose: (id: string) => void;
-  isMain: boolean;
-}
-
-export const ChatWindow: React.FC<ChatWindowProps> = ({
+export default function ChatWindow({
   id,
   messages,
   showMessageStats,
   onClose,
   isMain,
-}) => {
+}: ChatWindowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,6 +54,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                 </div>
               ) : (
                 <LLMResponse
+                  id={msg.id}
+                  sender={msg.sender}
                   provider={msg.provider || ""}
                   content={msg.content}
                   isLoading={msg.isLoading || false}
@@ -92,4 +71,4 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       </div>
     </div>
   );
-};
+}
