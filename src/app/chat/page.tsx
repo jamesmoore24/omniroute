@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Plus, Send, Loader2, Menu, HelpCircle, X } from "lucide-react";
+import { Input, Button, message } from "antd";
+import { SendOutlined } from "@ant-design/icons";
+import { Plus, Loader2, Menu, HelpCircle, X } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -15,6 +15,7 @@ import {
 import SidebarContent from "@/components/Chat/ChatSideBar";
 import { LLM_PROVIDERS } from "@/data/aiData";
 import { formatNumber } from "@/lib/utils";
+import { useAuth } from "@clerk/nextjs";
 
 type Message = {
   id: number;
@@ -41,7 +42,8 @@ type ChatWindow = {
 };
 
 export default function Component() {
-  const [message, setMessage] = useState("");
+  const { isSignedIn } = useAuth();
+  const [query, setQuery] = useState("");
   const [chatWindows, setChatWindows] = useState<ChatWindow[]>([
     { id: "main", messages: [], selectedProvider: null },
   ]);
@@ -96,10 +98,17 @@ export default function Component() {
   };
 
   const handleSendMessage = async () => {
-    if (message.trim() && selectedProviders.length > 0) {
+    if (!isSignedIn) {
+      message.error("Please sign in to use the chat functionality.");
+      return;
+    }
+
+    console.log("Hello world");
+
+    if (query.trim() && selectedProviders.length > 0) {
       const newUserMessage: Message = {
         id: Date.now(),
-        content: message,
+        content: query,
         sender: "user" as const,
       };
 
@@ -110,7 +119,7 @@ export default function Component() {
         }))
       );
 
-      setMessage("");
+      setQuery("");
 
       for (const window of chatWindows) {
         const provider =
@@ -291,7 +300,7 @@ export default function Component() {
               {/* Sidebar Toggle */}
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon">
+                  <Button type="default" size="small">
                     <Menu className="h-4 w-4" />
                   </Button>
                 </SheetTrigger>
@@ -323,8 +332,8 @@ export default function Component() {
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
                     <Button
-                      variant="outline"
-                      size="icon"
+                      type="default"
+                      size="small"
                       onClick={handleAddModelComparison}
                     >
                       <Plus className="h-4 w-4" />
@@ -336,7 +345,11 @@ export default function Component() {
                 </Tooltip>
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon">
+                    <Button
+                      type="default"
+                      size="small"
+                      onClick={handleAddModelComparison}
+                    >
                       <HelpCircle className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -363,8 +376,8 @@ export default function Component() {
                   >
                     {window.id !== "main" && (
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        type="default"
+                        size="small"
                         className="absolute top-2 right-2 z-10"
                         onClick={() => handleCloseWindow(window.id)}
                       >
@@ -477,23 +490,23 @@ export default function Component() {
                 }}
               >
                 <Input
-                  placeholder="Start a message..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  }}
-                  className="flex-1 mr-2 text-black"
+                  placeholder={
+                    isSignedIn ? "Start a message..." : "Sign in to chat"
+                  }
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onPressEnter={handleSendMessage}
+                  className="flex-1 mr-2"
+                  disabled={!isSignedIn}
                 />
                 <Button
-                  type="submit"
-                  size="icon"
-                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                  type="primary"
+                  icon={<SendOutlined />}
+                  onClick={handleSendMessage}
+                  disabled={!isSignedIn}
+                  className=" bg-orange-500 hover:bg-orange-600 border-none"
                 >
-                  <Send className="h-4 w-4" />
+                  Send
                 </Button>
               </form>
             </div>
