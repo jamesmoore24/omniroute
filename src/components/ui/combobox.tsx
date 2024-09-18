@@ -22,7 +22,8 @@ import {
 interface Provider {
   name: string;
   avatar: string;
-  costPerToken: number;
+  inputCostPerToken: number;
+  outputCostPerToken: number;
 }
 
 interface ComboboxProps {
