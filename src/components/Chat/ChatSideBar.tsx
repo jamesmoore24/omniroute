@@ -47,7 +47,7 @@ export default function SidebarContent({
             variant="outline"
             className="w-full justify-start mb-4 text-black"
           >
-            <Plus className="mr-2 h-4 w-4" /> New Room
+            <Plus className="mr-2 h-4 w-4" /> New Chat
           </Button>
           {[
             "how to download goo...",

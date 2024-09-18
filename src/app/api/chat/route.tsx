@@ -6,15 +6,17 @@ const openai = new OpenAI({
 });
 
 export async function POST(req: Request) {
-  const { message } = await req.json();
+  const { messages } = await req.json();
 
   let tokenCount = 0;
 
+  console.log("messages", messages);
+
   const stream = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini",
     messages: [
       { role: "system", content: "You are a helpful assistant." },
-      { role: "user", content: message },
+      ...messages, // Include the conversation history here
     ],
     stream: true,
   });

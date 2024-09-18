@@ -52,7 +52,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         <Button
           type="default"
           size="small"
-          className="absolute top-2 right-2 z-10"
+          className="absolute top-2 right-2 z-10 w-8 h-8 p-0 flex items-center justify-center"
           onClick={() => onClose(id)}
         >
           <X className="h-4 w-4" />

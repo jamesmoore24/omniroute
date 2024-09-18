@@ -7,10 +7,13 @@ import { message } from "antd";
 import { AnimatedGridBackground } from "../components/GridBackground";
 import { Header } from "../components/Header";
 import { LandingDemo } from "../components/Landing/LandingDemo";
+import { useRouter } from "next/navigation";
+import { Rocket } from "lucide-react";
 
 const { Title, Paragraph } = Typography;
 
 export default function AiLandingPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isValidEmail, setIsValidEmail] = useState(false);
@@ -59,6 +62,10 @@ export default function AiLandingPage() {
     }
   }, [email, isValidEmail]);
 
+  const handleStartChatting = () => {
+    router.push("/chat");
+  };
+
   return (
     <div className="min-h-screen bg-white relative">
       <AnimatedGridBackground />
@@ -75,35 +82,28 @@ export default function AiLandingPage() {
             </span>
           </Title>
           <Paragraph className="text-gray-700 text-xl md:text-2xl mb-12 max-w-2xl mx-auto animate-fade-in-up animation-delay-200">
-            Pay-as-you-go, model routing, prompt optimization, context
-            management, token tracking, customizability and more.
+            Save on every query with model routing while still achieving the
+            highest quality responses with the lowest latency.
           </Paragraph>
           <Paragraph className="text-gray-700 text-xl md:text-2xl mb-12 max-w-2xl mx-auto animate-fade-in-up animation-delay-200">
-            <strong>All in one API and native, lightweight application.</strong>
+            <strong>All in one API and lightweight application.</strong>
           </Paragraph>
           <Space
             direction="vertical"
             size="large"
             className="w-full max-w-md mx-auto mb-8 animate-fade-in-up animation-delay-400"
           >
-            <Input
-              size="large"
-              placeholder="Enter your email"
-              value={email}
-              onChange={handleEmailChange}
-              className="bg-white/20 text-gray-800 placeholder-gray-500 border-gray-300"
-            />
-            <Button
-              type="primary"
-              size="large"
-              icon={isLoading ? <LoadingOutlined /> : <SendOutlined />}
-              onClick={handleSubmit}
-              loading={isLoading}
-              disabled={!isValidEmail}
-              className="w-full bg-orange-500 hover:bg-orange-600 border-none"
-            >
-              {isLoading ? "Please wait" : "Join the waitlist 🚀"}
-            </Button>
+            <div className="flex-1 flex items-center justify-center">
+              <Button
+                type="primary"
+                size="large"
+                onClick={handleStartChatting}
+                className="bg-orange-500 hover:bg-orange-600 border-none text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105"
+              >
+                Start chatting
+                <Rocket className="h-5 w-5 mr-2" />
+              </Button>
+            </div>
           </Space>
           <Paragraph className="text-gray-600 text-sm animate-fade-in-up animation-delay-600 mb-8">
             Our mission is to make the premium LLM experience accessible to

@@ -97,8 +97,7 @@ export default function Component() {
       };
       setChatWindows((prev) => [...prev, newWindow]);
     } else {
-      // Optionally, you can show an alert or a message to the user
-      alert("You can only have up to 4 chat windows open.");
+      message.error("You can only have up to 4 windows open");
     }
   };
 
@@ -110,128 +109,84 @@ export default function Component() {
   };
 
   const handleSendMessage = async () => {
-    if (!isSignedIn) {
-      message.error("Please sign in to use the chat functionality.");
-      return;
-    }
+    const startTime = Date.now();
+    if (!isSignedIn || !query.trim()) return;
 
-    if (query.trim() && selectedProviders.length > 0) {
-      const newUserMessage: Message = {
-        id: Date.now(),
-        content: query,
-        sender: "user" as const,
+    const newUserMessage: Message = {
+      id: Date.now(),
+      content: query,
+      sender: "user",
+    };
+
+    setChatWindows((prev) =>
+      prev.map((window) => ({
+        ...window,
+        messages: [...window.messages, newUserMessage],
+      }))
+    );
+
+    setQuery("");
+
+    for (const window of chatWindows) {
+      const provider =
+        window.selectedProvider ||
+        selectedProviders[Math.floor(Math.random() * selectedProviders.length)];
+      const newAiMessage: Message = {
+        id: Date.now() + 1,
+        content: "",
+        sender: "ai",
+        provider: provider,
+        isLoading: true,
+        providerRevealed: false,
       };
 
       setChatWindows((prev) =>
-        prev.map((window) => ({
-          ...window,
-          messages: [...window.messages, newUserMessage],
-        }))
+        prev.map((w) =>
+          w.id === window.id
+            ? { ...w, messages: [...w.messages, newAiMessage] }
+            : w
+        )
       );
 
-      setQuery("");
+      const conversationHistory = window.messages.map((msg) => ({
+        role: msg.sender === "user" ? "user" : "assistant",
+        content: msg.content,
+      }));
 
-      for (const window of chatWindows) {
-        const provider =
-          window.selectedProvider ||
-          selectedProviders[
-            Math.floor(Math.random() * selectedProviders.length)
-          ];
-        const newAiMessage: Message = {
-          id: Date.now() + 1,
-          content: "",
-          sender: "ai",
-          provider: provider,
-          isLoading: true,
-          providerRevealed: false,
-        };
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [
+              ...conversationHistory,
+              { role: "user", content: query },
+            ],
+            provider: newAiMessage.provider,
+          }),
+        });
 
-        setChatWindows((prev) =>
-          prev.map((w) =>
-            w.id === window.id
-              ? { ...w, messages: [...w.messages, newAiMessage] }
-              : w
-          )
-        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch response");
+        }
 
-        const startTime = Date.now();
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let aiResponseContent = "";
+        let tokenCount = 0;
 
-        try {
-          const response = await fetch("/api/chat", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              message: newUserMessage.content,
-              provider: newAiMessage.provider,
-            }),
-          });
+        while (true) {
+          const { done, value } = await reader!.read();
+          if (done) break;
+          const chunk = decoder.decode(value);
 
-          if (!response.ok) {
-            throw new Error("Failed to fetch response");
+          if (chunk.includes("TOKEN_COUNT:")) {
+            const [content, count] = chunk.split("TOKEN_COUNT:");
+            aiResponseContent += content;
+            tokenCount = parseInt(count.trim(), 10);
+          } else {
+            aiResponseContent += chunk;
           }
-
-          const reader = response.body?.getReader();
-          const decoder = new TextDecoder();
-          let aiResponseContent = "";
-          let tokenCount = 0;
-
-          while (true) {
-            const { done, value } = await reader!.read();
-            if (done) break;
-            const chunk = decoder.decode(value);
-
-            if (chunk.includes("TOKEN_COUNT:")) {
-              const [content, count] = chunk.split("TOKEN_COUNT:");
-              aiResponseContent += content;
-              tokenCount = parseInt(count.trim(), 10);
-            } else {
-              aiResponseContent += chunk;
-            }
-
-            setChatWindows((prev) =>
-              prev.map((w) =>
-                w.id === window.id
-                  ? {
-                      ...w,
-                      messages: w.messages.map((msg) =>
-                        msg.id === newAiMessage.id
-                          ? {
-                              ...msg,
-                              content: aiResponseContent,
-                              isLoading: false,
-                              providerRevealed: true,
-                            }
-                          : msg
-                      ),
-                    }
-                  : w
-              )
-            );
-          }
-
-          const endTime = Date.now();
-          const latency = endTime - startTime;
-          const tokensPerSecond = (tokenCount / latency) * 1000; // Convert to tokens per second
-
-          // Find the most expensive selected provider
-          const selectedProvidersCost = selectedProviders.map(
-            (name) => LLM_PROVIDERS.find((p) => p.name === name)!.costPerToken
-          );
-          const mostExpensiveProviderCost = Math.max(...selectedProvidersCost);
-
-          // Update metrics after the full response is received
-          const usedProvider = LLM_PROVIDERS.find(
-            (p) => p.name === newAiMessage.provider
-          )!;
-          const cost = tokenCount * usedProvider.costPerToken;
-          const savedCost =
-            tokenCount *
-            (mostExpensiveProviderCost - usedProvider.costPerToken);
-
-          setTotalTokens((prev) => prev + tokenCount);
-          setTotalSaved((prev) => prev + savedCost);
 
           setChatWindows((prev) =>
             prev.map((w) =>
@@ -242,36 +197,9 @@ export default function Component() {
                       msg.id === newAiMessage.id
                         ? {
                             ...msg,
-                            metrics: {
-                              tokens: tokenCount,
-                              tokensPerSecond: parseFloat(
-                                tokensPerSecond.toFixed(2)
-                              ),
-                              latency: latency.toFixed(2),
-                              cost: cost.toFixed(6),
-                              saved: savedCost.toFixed(6),
-                            },
-                          }
-                        : msg
-                    ),
-                  }
-                : w
-            )
-          );
-        } catch (error) {
-          console.error("Error calling API:", error);
-          setChatWindows((prev) =>
-            prev.map((w) =>
-              w.id === window.id
-                ? {
-                    ...w,
-                    messages: w.messages.map((msg) =>
-                      msg.id === newAiMessage.id
-                        ? {
-                            ...msg,
-                            content:
-                              "Sorry, there was an error generating the response.",
+                            content: aiResponseContent,
                             isLoading: false,
+                            providerRevealed: true,
                           }
                         : msg
                     ),
@@ -280,12 +208,72 @@ export default function Component() {
             )
           );
         }
-      }
 
-      // Scroll to bottom after updating the state
-      chatWindows.forEach((window) => {
-        scrollToBottom(window.id);
-      });
+        // Calculate savings after the full response is received
+        const usedProvider = LLM_PROVIDERS.find(
+          (p) => p.name === newAiMessage.provider
+        )!;
+        const cost = tokenCount * usedProvider.costPerToken;
+        const mostExpensiveProviderCost = Math.max(
+          ...LLM_PROVIDERS.map((p) => p.costPerToken)
+        ); // Add this line
+        const savedCost =
+          tokenCount * (mostExpensiveProviderCost - usedProvider.costPerToken);
+
+        // Update total tokens and total savings
+        setTotalTokens((prev) => prev + tokenCount);
+        setTotalSaved((prev) => prev + savedCost);
+
+        setChatWindows((prev) =>
+          prev.map((w) =>
+            w.id === window.id
+              ? {
+                  ...w,
+                  messages: w.messages.map((msg) =>
+                    msg.id === newAiMessage.id
+                      ? {
+                          ...msg,
+                          metrics: {
+                            tokens: tokenCount,
+                            tokensPerSecond: parseFloat(
+                              (
+                                (tokenCount / (Date.now() - startTime)) *
+                                1000
+                              ).toFixed(2)
+                            ),
+                            latency: (Date.now() - startTime).toFixed(2),
+                            cost: cost.toFixed(6),
+                            saved: savedCost.toFixed(6),
+                          },
+                        }
+                      : msg
+                  ),
+                }
+              : w
+          )
+        );
+      } catch (error) {
+        console.error("Error calling API:", error);
+        setChatWindows((prev) =>
+          prev.map((w) =>
+            w.id === window.id
+              ? {
+                  ...w,
+                  messages: w.messages.map((msg) =>
+                    msg.id === newAiMessage.id
+                      ? {
+                          ...msg,
+                          content:
+                            "Sorry, there was an error generating the response.",
+                          isLoading: false,
+                        }
+                      : msg
+                  ),
+                }
+              : w
+          )
+        );
+      }
     }
   };
 
