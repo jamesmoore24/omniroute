@@ -10,16 +10,10 @@ import {
 } from "@clerk/nextjs";
 
 export const Header: React.FC = () => {
-  const { signIn, isLoaded } = useSignIn();
+  const { isLoaded } = useSignIn();
   if (!isLoaded) {
     return null;
   }
-  const signInWithGoogle = () =>
-    signIn.authenticateWithRedirect({
-      strategy: "oauth_google",
-      redirectUrl: "/sso-callback",
-      redirectUrlComplete: "/",
-    });
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="flex justify-between items-center h-16 px-5">

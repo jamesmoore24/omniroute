@@ -1,4 +1,4 @@
-import { ClerkProvider, useSignIn } from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -17,20 +17,6 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "OmniRoute.ai",
   description: "Your unified LLM interface",
-};
-
-const SignInOAuthButtons = () => {
-  const { signIn, isLoaded } = useSignIn();
-  if (!isLoaded) {
-    return null;
-  }
-  const signInWithGoogle = () =>
-    signIn.authenticateWithRedirect({
-      strategy: "oauth_google",
-      redirectUrl: "/sso-callback",
-      redirectUrlComplete: "/",
-    });
-  return <button onClick={signInWithGoogle}>Sign in with Google</button>;
 };
 
 export default function RootLayout({
