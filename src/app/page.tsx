@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useCallback } from "react";
 import { Button, Input, Typography, Space } from "antd";
 import { SendOutlined, LoadingOutlined } from "@ant-design/icons";
 import { message } from "antd";
 import { AnimatedGridBackground } from "../components/GridBackground";
 import { Header } from "../components/Header";
-import { LandingDemo } from "../components/LandingDemo";
+import { LandingDemo } from "../components/Landing/LandingDemo";
 
 const { Title, Paragraph } = Typography;
 
@@ -39,7 +39,7 @@ export default function AiLandingPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email }), // Corrected to use the variable 'email'
+        body: JSON.stringify({ email }),
       });
 
       console.log(response);
@@ -64,6 +64,7 @@ export default function AiLandingPage() {
       <AnimatedGridBackground />
       <div className="relative z-10">
         <Header />
+
         <main className="container mx-auto px-4 py-8 text-center">
           <Title
             level={1}
