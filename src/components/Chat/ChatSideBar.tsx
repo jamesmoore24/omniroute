@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
@@ -11,48 +11,39 @@ import { Plus, DollarSign, Hash } from "lucide-react";
 import { Combobox as ComboboxComponent } from "@/components/ui/combobox";
 import { LLM_PROVIDERS } from "@/data/aiData";
 import { formatNumber } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface SidebarContentProps {
-  selectedProviders: string[];
-  setSelectedProviders: React.Dispatch<React.SetStateAction<string[]>>;
   totalSaved: number;
   totalTokens: number;
-  costPreference: number;
-  setCostPreference: React.Dispatch<React.SetStateAction<number>>;
-  qualityPreference: number;
-  setQualityPreference: React.Dispatch<React.SetStateAction<number>>;
-  latencyPreference: number;
-  setLatencyPreference: React.Dispatch<React.SetStateAction<number>>;
-  isAdjustingCost: boolean;
-  setIsAdjustingCost: React.Dispatch<React.SetStateAction<boolean>>;
-  isAdjustingQuality: boolean;
-  setIsAdjustingQuality: React.Dispatch<React.SetStateAction<boolean>>;
-  isAdjustingLatency: boolean;
-  setIsAdjustingLatency: React.Dispatch<React.SetStateAction<boolean>>;
-  handleSliderPointerMove: (event: React.PointerEvent<HTMLSpanElement>) => void;
-  popoverPosition: { x: number; y: number };
+  selectedProviders: string[];
+  setSelectedProviders: React.Dispatch<React.SetStateAction<string[]>>;
+  showMessageStats: boolean;
+  setShowMessageStats: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function SidebarContent({
-  selectedProviders,
-  setSelectedProviders,
   totalSaved,
   totalTokens,
-  costPreference,
-  setCostPreference,
-  qualityPreference,
-  setQualityPreference,
-  latencyPreference,
-  setLatencyPreference,
-  isAdjustingCost,
-  setIsAdjustingCost,
-  isAdjustingQuality,
-  setIsAdjustingQuality,
-  isAdjustingLatency,
-  setIsAdjustingLatency,
-  handleSliderPointerMove,
-  popoverPosition,
+  selectedProviders,
+  setSelectedProviders,
+  showMessageStats,
+  setShowMessageStats,
 }: SidebarContentProps): JSX.Element {
+  const [costPreference, setCostPreference] = useState(50);
+  const [qualityPreference, setQualityPreference] = useState(50);
+  const [latencyPreference, setLatencyPreference] = useState(50);
+  const [isAdjustingCost, setIsAdjustingCost] = useState(false);
+  const [isAdjustingQuality, setIsAdjustingQuality] = useState(false);
+  const [isAdjustingLatency, setIsAdjustingLatency] = useState(false);
+  const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
+
+  const handleSliderPointerMove = (
+    event: React.PointerEvent<HTMLSpanElement>
+  ) => {
+    setPopoverPosition({ x: event.clientX, y: event.clientY });
+  };
+
   return (
     <div className="flex flex-col h-full">
       <ScrollArea className="flex-grow">
@@ -86,6 +77,21 @@ export default function SidebarContent({
             onSelectedValuesChange={(values) => setSelectedProviders(values)}
             initialSelectedValues={selectedProviders}
           />
+        </div>
+        <div className="flex items-center mb-4">
+          <Checkbox
+            id="showStats"
+            checked={showMessageStats}
+            onCheckedChange={(checked) =>
+              setShowMessageStats(checked as boolean)
+            }
+          />
+          <label
+            htmlFor="showStats"
+            className="ml-2 text-sm font-medium text-black cursor-pointer"
+          >
+            Show response stats
+          </label>
         </div>
         <div className="flex items-center mb-4">
           <DollarSign className="w-4 h-4 mr-2 text-green-500" />

@@ -16,6 +16,7 @@ import SidebarContent from "@/components/Chat/ChatSideBar";
 import { LLM_PROVIDERS } from "@/data/aiData";
 import { formatNumber } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Message = {
   id: number;
@@ -61,6 +62,7 @@ export default function Component() {
   const [isAdjustingQuality, setIsAdjustingQuality] = useState(false);
   const [isAdjustingLatency, setIsAdjustingLatency] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
+  const [showMessageStats, setShowMessageStats] = useState(true);
 
   const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -297,7 +299,6 @@ export default function Component() {
           {/* Main Chat Area */}
           <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
             <div className="p-4 flex items-center justify-between border-b border-gray-200">
-              {/* Sidebar Toggle */}
               <Sheet>
                 <SheetTrigger asChild>
                   <Button type="default" size="small">
@@ -306,24 +307,12 @@ export default function Component() {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-64 p-0 bg-white">
                   <SidebarContent
-                    selectedProviders={selectedProviders}
-                    setSelectedProviders={setSelectedProviders}
                     totalSaved={totalSaved}
                     totalTokens={totalTokens}
-                    costPreference={costPreference}
-                    setCostPreference={setCostPreference}
-                    qualityPreference={qualityPreference}
-                    setQualityPreference={setQualityPreference}
-                    latencyPreference={latencyPreference}
-                    setLatencyPreference={setLatencyPreference}
-                    isAdjustingCost={isAdjustingCost}
-                    setIsAdjustingCost={setIsAdjustingCost}
-                    isAdjustingQuality={isAdjustingQuality}
-                    setIsAdjustingQuality={setIsAdjustingQuality}
-                    isAdjustingLatency={isAdjustingLatency}
-                    setIsAdjustingLatency={setIsAdjustingLatency}
-                    handleSliderPointerMove={handleSliderPointerMove}
-                    popoverPosition={popoverPosition}
+                    selectedProviders={selectedProviders}
+                    setSelectedProviders={setSelectedProviders}
+                    showMessageStats={showMessageStats}
+                    setShowMessageStats={setShowMessageStats}
                   />
                 </SheetContent>
               </Sheet>
@@ -339,7 +328,7 @@ export default function Component() {
                       <Plus className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent side="bottom">
                     <p>Add a new model comparison window</p>
                   </TooltipContent>
                 </Tooltip>
@@ -435,38 +424,44 @@ export default function Component() {
                                   {msg.content}
                                 </p>
                               )}
-                              {msg.sender === "ai" && msg.metrics && (
-                                <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200 flex flex-wrap gap-2">
-                                  <span>
-                                    Tokens: {formatNumber(msg.metrics.tokens)}
-                                  </span>
-                                  <span>•</span>
-                                  <span>
-                                    {formatNumber(msg.metrics.tokensPerSecond)}{" "}
-                                    tokens/sec
-                                  </span>
-                                  <span>•</span>
-                                  <span>
-                                    Latency:{" "}
-                                    {formatNumber(
-                                      parseFloat(msg.metrics.latency)
-                                    )}
-                                    ms
-                                  </span>
-                                  <span>•</span>
-                                  <span>
-                                    Cost: $
-                                    {formatNumber(parseFloat(msg.metrics.cost))}
-                                  </span>
-                                  <span>•</span>
-                                  <span>
-                                    Saved: $
-                                    {formatNumber(
-                                      parseFloat(msg.metrics.saved)
-                                    )}
-                                  </span>
-                                </div>
-                              )}
+                              {msg.sender === "ai" &&
+                                msg.metrics &&
+                                showMessageStats && (
+                                  <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200 flex flex-wrap gap-2">
+                                    <span>
+                                      Tokens: {formatNumber(msg.metrics.tokens)}
+                                    </span>
+                                    <span>•</span>
+                                    <span>
+                                      {formatNumber(
+                                        msg.metrics.tokensPerSecond
+                                      )}{" "}
+                                      tokens/sec
+                                    </span>
+                                    <span>•</span>
+                                    <span>
+                                      Latency:{" "}
+                                      {formatNumber(
+                                        parseFloat(msg.metrics.latency)
+                                      )}
+                                      ms
+                                    </span>
+                                    <span>•</span>
+                                    <span>
+                                      Cost: $
+                                      {formatNumber(
+                                        parseFloat(msg.metrics.cost)
+                                      )}
+                                    </span>
+                                    <span>•</span>
+                                    <span>
+                                      Saved: $
+                                      {formatNumber(
+                                        parseFloat(msg.metrics.saved)
+                                      )}
+                                    </span>
+                                  </div>
+                                )}
                             </div>
                           </div>
                         </div>
