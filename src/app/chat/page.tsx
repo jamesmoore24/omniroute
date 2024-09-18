@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Input, Button, message } from "antd";
+import { Button, message } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 import { Plus, Menu, HelpCircle } from "lucide-react";
 import { Header } from "@/components/Header";
