@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { UserCircle } from "lucide-react"; // Import the UserCircle icon
+import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 export const Header: React.FC = () => {
   return (
@@ -23,9 +23,12 @@ export const Header: React.FC = () => {
           <Button variant="ghost" className="text-black hover:text-orange-500">
             Docs
           </Button>
-          <Button variant="ghost" className="text-black hover:text-orange-500">
-            <UserCircle className="w-5 h-5" />
-          </Button>
+          <SignedOut>
+            <SignInButton />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
         </nav>
       </div>
     </header>
