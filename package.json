@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^5.5.5",
-    "@lucia-auth/adapter-prisma": "^4.0.1",
-    "@prisma/client": "^5.19.1",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/react-popover": "^1.1.1",
@@ -37,7 +35,8 @@
     "react-countup": "^6.5.3",
     "react-dom": "^18",
     "tailwind-merge": "^2.5.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "tslib": "^2.7.0"
   },
   "devDependencies": {
     "@types/node": "^20",
