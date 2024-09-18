@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { Button, Input, Typography, Space } from "antd";
-import { SendOutlined, LoadingOutlined } from "@ant-design/icons";
-import { message } from "antd";
+import React from "react";
+import { Button, Typography, Space } from "antd";
 import { AnimatedGridBackground } from "../components/GridBackground";
 import { Header } from "../components/Header";
 import { LandingDemo } from "../components/Landing/LandingDemo";
@@ -14,53 +12,6 @@ const { Title, Paragraph } = Typography;
 
 export default function AiLandingPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isValidEmail, setIsValidEmail] = useState(false);
-
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newEmail = e.target.value;
-    setEmail(newEmail);
-    setIsValidEmail(validateEmail(newEmail));
-  };
-
-  const handleSubmit = useCallback(async () => {
-    if (!isValidEmail) {
-      message.error("Please enter a valid email address");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      console.log(response);
-
-      if (response.ok) {
-        message.success(
-          "You have been added to the waitlist! Check your email for confirmation."
-        );
-        setEmail("");
-      } else {
-        throw new Error("Failed to sign up");
-      }
-    } catch (error) {
-      message.error("An error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [email, isValidEmail]);
 
   const handleStartChatting = () => {
     router.push("/chat");
