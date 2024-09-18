@@ -88,7 +88,7 @@ export const LandingDemo: React.FC = () => {
                   <span className="text-xs text-gray-500 mb-1 block">
                     Optimized Prompt
                   </span>
-                  <div className="bg-orange-500 text-white p-3 rounded-lg rounded-tr-none inline-block w-full">
+                  <div className="bg-orange-500 text-white p-3 rounded-lg inline-block w-full">
                     <div className="text-left whitespace-pre-wrap break-words">
                       {displayedOptimizedText}
                     </div>

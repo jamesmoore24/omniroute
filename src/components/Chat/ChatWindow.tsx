@@ -50,7 +50,9 @@ export default function ChatWindow({
             >
               {msg.sender === "user" ? (
                 <div className="p-4 rounded-lg shadow bg-orange-100 w-full">
-                  <p className="text-black text-center">{msg.content}</p>
+                  <p className="text-black whitespace-pre-wrap text-left">
+                    {msg.content}
+                  </p>
                 </div>
               ) : (
                 <LLMResponse

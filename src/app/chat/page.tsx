@@ -18,6 +18,7 @@ import { LLM_PROVIDERS } from "@/data/aiData";
 import { formatNumber } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { ChatWindowType, Message } from "@/types/chat";
+import TextArea from "antd/lib/input/TextArea";
 
 export default function Component() {
   const { isSignedIn } = useAuth();
@@ -261,6 +262,27 @@ export default function Component() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Tab") {
+      // ... existing Tab handling code ...
+    } else if (e.key === "Enter") {
+      if (!e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+      }
+    } else if (e.key === " " && e.shiftKey) {
+      e.preventDefault();
+      const start = e.currentTarget.selectionStart;
+      const end = e.currentTarget.selectionEnd;
+      const newValue = query.substring(0, start) + "\n" + query.substring(end);
+      setQuery(newValue);
+      setTimeout(() => {
+        e.currentTarget.selectionStart = e.currentTarget.selectionEnd =
+          start + 1;
+      }, 0);
+    }
+  };
+
   return (
     <TooltipProvider>
       <div className="flex flex-col h-screen bg-gray-100 text-black">
@@ -354,22 +376,23 @@ export default function Component() {
                   handleSendMessage();
                 }}
               >
-                <Input
+                <TextArea
                   placeholder={
                     isSignedIn ? "Start a message..." : "Sign in to chat"
                   }
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  onPressEnter={handleSendMessage}
-                  className="flex-1 mr-2"
+                  onKeyDown={handleKeyDown}
+                  className="flex-1 mr-2 resize-none"
                   disabled={!isSignedIn}
+                  autoSize={{ minRows: 1, maxRows: 6 }}
                 />
                 <Button
                   type="primary"
                   icon={<SendOutlined />}
                   onClick={handleSendMessage}
                   disabled={!isSignedIn}
-                  className=" bg-orange-500 hover:bg-orange-600 border-none"
+                  className="bg-orange-500 hover:bg-orange-600 border-none"
                 >
                   Send
                 </Button>

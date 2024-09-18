@@ -33,8 +33,8 @@ export default function AiLandingPage() {
             </span>
           </Title>
           <Paragraph className="text-gray-700 text-xl md:text-2xl mb-12 max-w-2xl mx-auto animate-fade-in-up animation-delay-200">
-            Save on every query with model routing while still achieving the
-            highest quality responses with the lowest latency.
+            Optimize costs, maximize quality, and minimize latency with
+            intelligent model routing and prompt optimization.
           </Paragraph>
           <Paragraph className="text-gray-700 text-xl md:text-2xl mb-12 max-w-2xl mx-auto animate-fade-in-up animation-delay-200">
             <strong>All in one API and lightweight application.</strong>
