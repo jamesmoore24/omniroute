@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Typography, Space } from "antd";
+import { Typography } from "antd";
 import CountUp from "react-countup";
 import { prompts, models } from "../../data/aiData";
 
@@ -62,7 +62,7 @@ export const LandingDemo: React.FC = () => {
       });
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  });
 
   return (
     <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-md rounded-lg p-6 animate-fade-in-up animation-delay-800 border border-gray-200">
