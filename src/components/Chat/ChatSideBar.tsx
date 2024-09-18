@@ -7,15 +7,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Plus, DollarSign, Hash } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Combobox as ComboboxComponent } from "@/components/ui/combobox";
 import { LLM_PROVIDERS } from "@/data/aiData";
-import { formatNumber } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface SidebarContentProps {
-  totalSaved: number;
-  totalTokens: number;
   selectedProviders: string[];
   setSelectedProviders: React.Dispatch<React.SetStateAction<string[]>>;
   showMessageStats: boolean;
@@ -23,8 +20,6 @@ interface SidebarContentProps {
 }
 
 export default function SidebarContent({
-  totalSaved,
-  totalTokens,
   selectedProviders,
   setSelectedProviders,
   showMessageStats,
@@ -92,18 +87,6 @@ export default function SidebarContent({
           >
             Show response stats
           </label>
-        </div>
-        <div className="flex items-center mb-4">
-          <DollarSign className="w-4 h-4 mr-2 text-green-500" />
-          <span className="text-sm font-medium text-black">
-            ${formatNumber(totalSaved)} saved
-          </span>
-        </div>
-        <div className="flex items-center mb-4">
-          <Hash className="w-4 h-4 mr-2 text-blue-500" />
-          <span className="text-sm font-medium text-black">
-            {totalTokens} tokens
-          </span>
         </div>
         <div className="space-y-4 mb-4">
           <div>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Input, Button, message } from "antd";
 import { SendOutlined } from "@ant-design/icons";
-import { Plus, Loader2, Menu, HelpCircle, X } from "lucide-react";
+import { Plus, Menu, HelpCircle } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -16,7 +16,8 @@ import SidebarContent from "@/components/Chat/ChatSideBar";
 import { LLM_PROVIDERS } from "@/data/aiData";
 import { formatNumber } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
-import { Checkbox } from "@/components/ui/checkbox";
+import CountUp from "react-countup";
+import { ChatWindow } from "@/components/Chat/ChatWindow";
 
 type Message = {
   id: number;
@@ -54,15 +55,9 @@ export default function Component() {
   );
   const [totalSaved, setTotalSaved] = useState(0);
   const [totalTokens, setTotalTokens] = useState(0);
-  const [costPreference, setCostPreference] = useState(50);
-  const [qualityPreference, setQualityPreference] = useState(50);
-  const [latencyPreference, setLatencyPreference] = useState(50);
-
-  const [isAdjustingCost, setIsAdjustingCost] = useState(false);
-  const [isAdjustingQuality, setIsAdjustingQuality] = useState(false);
-  const [isAdjustingLatency, setIsAdjustingLatency] = useState(false);
-  const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
   const [showMessageStats, setShowMessageStats] = useState(true);
+  const [prevTotalTokens, setPrevTotalTokens] = useState(0);
+  const [prevTotalSaved, setPrevTotalSaved] = useState(0);
 
   const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -77,6 +72,21 @@ export default function Component() {
       scrollToBottom(window.id);
     });
   }, [chatWindows]);
+
+  useEffect(() => {
+    setPrevTotalTokens(totalTokens);
+  }, [totalTokens]);
+
+  useEffect(() => {
+    setPrevTotalSaved(totalSaved);
+  }, [totalSaved]);
+
+  const formatSaved = (value: number) => {
+    if (value < 0.01) return value.toFixed(6);
+    if (value < 0.1) return value.toFixed(4);
+    if (value < 1) return value.toFixed(3);
+    return value.toFixed(2);
+  };
 
   const handleAddModelComparison = () => {
     if (chatWindows.length < 4) {
@@ -104,8 +114,6 @@ export default function Component() {
       message.error("Please sign in to use the chat functionality.");
       return;
     }
-
-    console.log("Hello world");
 
     if (query.trim() && selectedProviders.length > 0) {
       const newUserMessage: Message = {
@@ -281,16 +289,6 @@ export default function Component() {
     }
   };
 
-  const handleSliderPointerMove = (
-    event: React.PointerEvent<HTMLSpanElement>
-  ) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    setPopoverPosition({
-      x: event.clientX - rect.left,
-      y: rect.top - 30, // 30px above the slider
-    });
-  };
-
   return (
     <TooltipProvider>
       <div className="flex flex-col h-screen bg-gray-100 text-black">
@@ -301,14 +299,12 @@ export default function Component() {
             <div className="p-4 flex items-center justify-between border-b border-gray-200">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button type="default" size="small">
+                  <Button type="default" size="small" className="w-8 h-8 p-0">
                     <Menu className="h-4 w-4" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-64 p-0 bg-white">
                   <SidebarContent
-                    totalSaved={totalSaved}
-                    totalTokens={totalTokens}
                     selectedProviders={selectedProviders}
                     setSelectedProviders={setSelectedProviders}
                     showMessageStats={showMessageStats}
@@ -317,19 +313,39 @@ export default function Component() {
                 </SheetContent>
               </Sheet>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-4">
+                <div className="text-sm text-gray-600">
+                  Tokens:{" "}
+                  <CountUp
+                    start={prevTotalTokens}
+                    end={totalTokens}
+                    separator=","
+                    formattingFn={formatNumber}
+                  />
+                </div>
+                <div className="text-sm text-gray-600">
+                  Saved: $
+                  <CountUp
+                    start={prevTotalSaved}
+                    end={totalSaved}
+                    formattingFn={formatSaved}
+                  />
+                </div>
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
                     <Button
                       type="default"
                       size="small"
                       onClick={handleAddModelComparison}
+                      className="w-8 h-8 p-0"
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    <p>Add a new model comparison window</p>
+                    <p className="max-w-xs">
+                      Add a new model comparison window
+                    </p>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip delayDuration={0}>
@@ -338,6 +354,7 @@ export default function Component() {
                       type="default"
                       size="small"
                       onClick={handleAddModelComparison}
+                      className="w-8 h-8 p-0"
                     >
                       <HelpCircle className="h-4 w-4" />
                     </Button>
@@ -356,123 +373,15 @@ export default function Component() {
             </div>
             <div className="flex-1 overflow-auto">
               <div className="flex h-full">
-                {chatWindows.map((window, index) => (
-                  <div
+                {chatWindows.map((window) => (
+                  <ChatWindow
                     key={window.id}
-                    className={`flex-1 flex flex-col min-w-[300px] h-full relative ${
-                      index > 0 ? "border-l border-gray-250 h-full" : ""
-                    }`}
-                  >
-                    {window.id !== "main" && (
-                      <Button
-                        type="default"
-                        size="small"
-                        className="absolute top-2 right-2 z-10"
-                        onClick={() => handleCloseWindow(window.id)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                    <div className="flex-1 overflow-y-auto p-4">
-                      {window.messages.map((msg, msgIndex) => (
-                        <div
-                          key={msg.id}
-                          className={`flex ${
-                            msg.sender === "user"
-                              ? "justify-end"
-                              : "justify-start"
-                          } ${msgIndex > 0 ? "mt-6" : ""}`}
-                        >
-                          <div
-                            className={`flex flex-col ${
-                              msg.sender === "user"
-                                ? "items-end"
-                                : "items-start"
-                            } ${
-                              msg.sender === "user" ? "max-w-[80%]" : "w-full"
-                            }`}
-                          >
-                            <div
-                              className={`p-4 rounded-lg shadow ${
-                                msg.sender === "user"
-                                  ? "bg-orange-100"
-                                  : "bg-gray-50"
-                              } ${msg.sender === "user" ? "w-full" : "w-full"}`}
-                            >
-                              {msg.sender === "ai" && msg.provider && (
-                                <div className="text-xs text-gray-500 mb-2">
-                                  {msg.providerRevealed
-                                    ? msg.provider
-                                    : "Loading..."}
-                                </div>
-                              )}
-                              {msg.isLoading ? (
-                                <div className="flex items-center space-x-2">
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                  <span>
-                                    Routing response to the best provider...
-                                  </span>
-                                </div>
-                              ) : (
-                                <p
-                                  className={`text-black ${
-                                    msg.sender === "user"
-                                      ? "text-center"
-                                      : "text-left"
-                                  }`}
-                                >
-                                  {msg.content}
-                                </p>
-                              )}
-                              {msg.sender === "ai" &&
-                                msg.metrics &&
-                                showMessageStats && (
-                                  <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200 flex flex-wrap gap-2">
-                                    <span>
-                                      Tokens: {formatNumber(msg.metrics.tokens)}
-                                    </span>
-                                    <span>•</span>
-                                    <span>
-                                      {formatNumber(
-                                        msg.metrics.tokensPerSecond
-                                      )}{" "}
-                                      tokens/sec
-                                    </span>
-                                    <span>•</span>
-                                    <span>
-                                      Latency:{" "}
-                                      {formatNumber(
-                                        parseFloat(msg.metrics.latency)
-                                      )}
-                                      ms
-                                    </span>
-                                    <span>•</span>
-                                    <span>
-                                      Cost: $
-                                      {formatNumber(
-                                        parseFloat(msg.metrics.cost)
-                                      )}
-                                    </span>
-                                    <span>•</span>
-                                    <span>
-                                      Saved: $
-                                      {formatNumber(
-                                        parseFloat(msg.metrics.saved)
-                                      )}
-                                    </span>
-                                  </div>
-                                )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      <div
-                        ref={(el) => {
-                          scrollRefs.current[window.id] = el;
-                        }}
-                      />
-                    </div>
-                  </div>
+                    id={window.id}
+                    messages={window.messages}
+                    showMessageStats={showMessageStats}
+                    onClose={handleCloseWindow}
+                    isMain={window.id === "main"}
+                  />
                 ))}
               </div>
             </div>
