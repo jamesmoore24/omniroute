@@ -18,7 +18,6 @@ import { LLM_PROVIDERS } from "@/data/aiData";
 import { formatNumber } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { ChatWindowType, Message } from "@/types/chat";
-import { calculateTokens } from "@/lib/utils";
 
 export default function Component() {
   const { isSignedIn } = useAuth();
@@ -157,7 +156,6 @@ export default function Component() {
               totalTokens: usage.total_tokens,
               reasoningTokens: usage.completion_tokens_details.reasoning_tokens,
             };
-            console.log("mappedUsage", mappedUsage);
           } else {
             aiResponseContent += chunk;
           }
