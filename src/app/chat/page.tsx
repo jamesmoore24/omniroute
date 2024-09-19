@@ -367,7 +367,7 @@ export default function Component() {
                 ))}
               </div>
             </div>
-            <div className="p-4 bg-gray-50 border-t">
+            <div className="p-4 border-t">
               <form
                 className="flex items-center"
                 onSubmit={(e) => {
@@ -382,7 +382,7 @@ export default function Component() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="flex-1 mr-2 resize-none"
+                  className="flex-1 mr-2 resize-none focus:border-orange-500 focus:ring-orange-500 hover:border-orange-500 hover:ring-orange-500"
                   disabled={!isSignedIn}
                   autoSize={{ minRows: 1, maxRows: 6 }}
                 />

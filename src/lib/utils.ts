@@ -36,12 +36,10 @@ export function calculateTokens(text: string): number {
 }
 
 /**
- * Parses markdown content into HTML, supporting bold, italics, inline code,
+ * Parses markdown content into HTML, supporting headers, bold, italics, inline code,
  * code blocks with syntax highlighting, links, and nested bullet points.
  */
 export function parseMarkdown(content: string): string {
-  console.log(content);
-
   const lines = content.split("\n");
   let html = "";
   const listStack: { type: "ul" | "ol"; indent: number }[] = [];
@@ -54,7 +52,9 @@ export function parseMarkdown(content: string): string {
     return text
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   };
 
   // Function to close lists until the current indentation level is reached
@@ -85,93 +85,68 @@ export function parseMarkdown(content: string): string {
   };
 
   lines.forEach((line) => {
+    const headerMatch = line.match(/^(#{1,6})\s+(.+)$/);
     const codeBlockStartRegex = /^```(\w+)?$/;
     const codeBlockEndRegex = /^```$/;
-    const listItemRegex = /^(\s*)([-*+])\s+(.*)$/;
+    const listItemRegex = /^(\s*)([-*+]|\d+\.)\s+(.*)$/;
 
     if (inCodeBlock) {
       if (codeBlockEndRegex.test(line)) {
         // End of code block
-        const escapedCode = escapeHtml(codeBlockContent);
-        // Add language label if available
+        const escapedCode = escapeHtml(codeBlockContent.trim());
         if (codeBlockLanguage) {
           html += `<div class="code-block"><span class="language-label">${codeBlockLanguage}</span><pre class="language-${codeBlockLanguage}"><code class="language-${codeBlockLanguage}">${escapedCode}</code></pre></div>`;
         } else {
           html += `<pre class="language-plaintext"><code class="language-plaintext">${escapedCode}</code></pre>`;
         }
-        // Reset code block state
         inCodeBlock = false;
         codeBlockLanguage = "";
         codeBlockContent = "";
       } else {
-        // Accumulate code block content
         codeBlockContent += line + "\n";
       }
+    } else if (headerMatch) {
+      // Header
+      const level = headerMatch[1].length;
+      const headerContent = processInlineMarkdown(escapeHtml(headerMatch[2]));
+      html += `<h${level}>${headerContent}</h${level}>`;
+    } else if (codeBlockStartRegex.test(line)) {
+      // Start of code block
+      inCodeBlock = true;
+      codeBlockLanguage = line.match(codeBlockStartRegex)?.[1] || "plaintext";
+    } else if (listItemRegex.test(line)) {
+      const match = line.match(listItemRegex)!;
+      const indent = match[1].length;
+      const bullet = match[2];
+      const text = match[3];
+
+      const currentIndent = indent;
+      const listType: "ul" | "ol" = /^\d+\./.test(bullet) ? "ol" : "ul";
+
+      closeLists(currentIndent);
+
+      if (
+        listStack.length === 0 ||
+        currentIndent > listStack[listStack.length - 1].indent
+      ) {
+        html += `<${listType}>`;
+        listStack.push({ type: listType, indent: currentIndent });
+      }
+
+      html += `<li>${processInlineMarkdown(escapeHtml(text))}</li>`;
     } else {
-      const codeBlockStartMatch = line.match(codeBlockStartRegex);
-      const listItemMatch = line.match(listItemRegex);
-
-      if (codeBlockStartMatch) {
-        // Start of code block
-        inCodeBlock = true;
-        codeBlockLanguage = codeBlockStartMatch[1] || "plaintext";
-        codeBlockContent = "";
-      } else if (listItemMatch) {
-        const indent = listItemMatch[1].length;
-        const text = listItemMatch[3];
-
-        // Assuming 2 spaces per indentation level
-        const currentIndent = indent;
-
-        // Determine the list type (unordered)
-        const listType: "ul" | "ol" = "ul"; // Can extend to handle ordered lists
-
-        // Close lists if necessary
-        closeLists(currentIndent);
-
-        // If the current indent is greater than the last one, open a new list
-        if (
-          listStack.length === 0 ||
-          currentIndent > listStack[listStack.length - 1].indent
-        ) {
-          html += `<${listType}>`;
-          listStack.push({ type: listType, indent: currentIndent });
-        }
-
-        html += `<li>${processInlineMarkdown(escapeHtml(text))}</li>`;
+      closeLists(0);
+      if (line.trim() === "") {
+        // Optional: add a <br> for empty lines if desired
+        // html += '<br>';
       } else {
-        // Close all open lists when encountering a non-list line
-        closeLists(0);
-
-        if (line.trim() === "") {
-          // Optionally handle paragraph spacing without adding <br />
-        } else {
-          html += `<p>${processInlineMarkdown(escapeHtml(line))}</p>`;
-        }
+        html += `<p>${processInlineMarkdown(escapeHtml(line))}</p>`;
       }
     }
   });
 
-  // Close any remaining open code blocks
-  if (inCodeBlock) {
-    const escapedCode = escapeHtml(codeBlockContent);
-    if (codeBlockLanguage) {
-      html += `<div class="code-block"><span class="language-label">${codeBlockLanguage}</span><pre class="language-${codeBlockLanguage}"><code class="language-${codeBlockLanguage}">${escapedCode}</code></pre></div>`;
-    } else {
-      html += `<pre class="language-plaintext"><code class="language-plaintext">${escapedCode}</code></pre>`;
-    }
-  }
-
   // Close any remaining open lists
-  while (listStack.length > 0) {
-    const list = listStack.pop();
-    if (list) {
-      html += `</${list.type}>`;
-    }
-  }
+  closeLists(0);
 
-  // Trim any trailing whitespace or line breaks from the final HTML
-  html = html.trim();
-
-  return html;
+  return html.trim();
 }
