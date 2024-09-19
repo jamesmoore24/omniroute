@@ -138,7 +138,7 @@ export function parseMarkdown(content: string): string {
       closeLists(0);
       if (line.trim() === "") {
         // Optional: add a <br> for empty lines if desired
-        // html += '<br>';
+        html += "<br>";
       } else {
         html += `<p>${processInlineMarkdown(escapeHtml(line))}</p>`;
       }
