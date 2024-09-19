@@ -403,21 +403,14 @@ export default function Component() {
                   </Tooltip>
                 </div>
                 {/* Add Window Button */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="default"
-                      size="small"
-                      onClick={() => handleTopBarClick("addWindow")}
-                      className="w-10 h-10"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    <p>Add a new model comparison window</p>
-                  </TooltipContent>
-                </Tooltip>
+                <Button
+                  type="default"
+                  size="small"
+                  onClick={() => handleAddModelComparison()}
+                  className="w-10 h-10"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
                 {/* Help Button */}
                 <Button
                   type="default"
@@ -484,7 +477,7 @@ export default function Component() {
           footer={[
             <Button
               key="ok"
-              className="bg-orange-500 hover:bg-orange-600 border-none text-white hover:text-orange-500"
+              className="bg-orange-500 hover:bg-orange-600 border-none text-white"
               onClick={() => setIsModalOpen(false)}
             >
               OK
