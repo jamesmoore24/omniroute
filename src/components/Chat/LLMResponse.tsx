@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import { Message } from "@/types/chat";
+import { parseMarkdown } from "@/lib/utils";
+import Prism from "prismjs";
 
 export const LLMResponse: React.FC<Message> = ({
   provider,
@@ -11,6 +13,27 @@ export const LLMResponse: React.FC<Message> = ({
   metrics,
   showMessageStats,
 }) => {
+  const [parsedContent, setParsedContent] = useState<string>("");
+
+  useEffect(() => {
+    const parsed = parseMarkdown(content);
+
+    // Highlight all code blocks using Prism
+    const highlightCodeBlocks = () => {
+      const dummyDiv = document.createElement("div");
+      dummyDiv.innerHTML = parsed;
+
+      const codeBlocks = dummyDiv.querySelectorAll("pre code");
+      codeBlocks.forEach((block) => {
+        Prism.highlightElement(block as HTMLElement);
+      });
+
+      setParsedContent(dummyDiv.innerHTML);
+    };
+
+    highlightCodeBlocks();
+  }, [content]);
+
   return (
     <div className="p-4 rounded-lg shadow bg-gray-50 w-full">
       {provider && (
@@ -24,7 +47,10 @@ export const LLMResponse: React.FC<Message> = ({
           <span>Routing response to the best provider...</span>
         </div>
       ) : (
-        <p className="text-black text-left">{content}</p>
+        <div
+          className="text-black text-left whitespace-pre-wrap"
+          dangerouslySetInnerHTML={{ __html: parsedContent }}
+        />
       )}
       {metrics && showMessageStats && (
         <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200 flex flex-wrap gap-2">

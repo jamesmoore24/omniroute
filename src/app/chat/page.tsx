@@ -185,7 +185,6 @@ export default function Component() {
         const usedProvider = LLM_PROVIDERS.find(
           (p) => p.name === newAiMessage.provider
         )!;
-        console.log(mappedUsage);
         const inputTokens = mappedUsage!.inputTokens ?? "N/A";
         const outputTokens = mappedUsage!.outputTokens ?? "N/A";
         const inputCost = inputTokens * usedProvider.inputCostPerToken;
