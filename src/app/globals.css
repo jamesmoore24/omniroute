@@ -114,9 +114,5 @@ br {
 
 /* Style for code blocks if not already handled */
 pre {
-  @apply bg-gray-800 text-gray-100 p-4 rounded-md overflow-auto;
-}
-
-code {
-  @apply bg-gray-700 text-gray-100 px-1 rounded;
+  @apply bg-gray-200 text-gray-800 p-4 rounded-md overflow-auto;
 }

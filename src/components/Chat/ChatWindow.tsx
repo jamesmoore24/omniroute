@@ -49,7 +49,7 @@ export default function ChatWindow({
               } ${msg.sender === "user" ? "max-w-[80%]" : "w-full"}`}
             >
               {msg.sender === "user" ? (
-                <div className="p-4 rounded-lg shadow bg-orange-100 w-full">
+                <div className="p-3 rounded-lg shadow bg-orange-100 w-full">
                   <p className="text-black whitespace-pre-wrap text-left">
                     {msg.content}
                   </p>
