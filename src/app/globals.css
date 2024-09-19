@@ -90,3 +90,33 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+ul {
+  @apply list-disc pl-5;
+}
+
+ul ul {
+  @apply list-disc pl-5;
+}
+
+ul ul ul {
+  @apply list-disc pl-5;
+}
+
+/* Style for paragraphs and line breaks */
+p {
+  @apply my-2;
+}
+
+br {
+  @apply block h-4;
+}
+
+/* Style for code blocks if not already handled */
+pre {
+  @apply bg-gray-800 text-gray-100 p-4 rounded-md overflow-auto;
+}
+
+code {
+  @apply bg-gray-700 text-gray-100 px-1 rounded;
+}

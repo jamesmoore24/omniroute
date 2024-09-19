@@ -28,7 +28,13 @@ export const LLMResponse: React.FC<Message> = ({
         Prism.highlightElement(block as HTMLElement);
       });
 
-      setParsedContent(dummyDiv.innerHTML);
+      if (metrics) {
+        let trimmedHTML = dummyDiv.innerHTML.replace(/(<br\s*\/?>)+$/g, "");
+        trimmedHTML = trimmedHTML.replace(/<p>\s*<\/p>$/g, "");
+        setParsedContent(trimmedHTML);
+      } else {
+        setParsedContent(dummyDiv.innerHTML);
+      }
     };
 
     highlightCodeBlocks();
