@@ -3,7 +3,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button, message } from "antd";
 import { SendOutlined } from "@ant-design/icons";
-import { Plus, Menu, HelpCircle } from "lucide-react";
+import {
+  Plus,
+  Menu,
+  HelpCircle,
+  Hash,
+  DollarSign,
+  PiggyBank,
+} from "lucide-react";
 import { Header } from "@/components/Header";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -30,8 +37,9 @@ export default function Component() {
   const [selectedProviders, setSelectedProviders] = useState<string[]>(
     LLM_PROVIDERS.map((provider) => provider.name)
   );
-  const [totalSaved, setTotalSaved] = useState(0);
   const [totalTokens, setTotalTokens] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+  const [totalSavings, setTotalSavings] = useState(0); // New state variable for total savings
   const [showMessageStats, setShowMessageStats] = useState(true);
 
   const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -185,8 +193,8 @@ export default function Component() {
         const usedProvider = LLM_PROVIDERS.find(
           (p) => p.name === newAiMessage.provider
         )!;
-        const inputTokens = mappedUsage!.inputTokens ?? "N/A";
-        const outputTokens = mappedUsage!.outputTokens ?? "N/A";
+        const inputTokens = mappedUsage!.inputTokens ?? 0;
+        const outputTokens = mappedUsage!.outputTokens ?? 0;
         const inputCost = inputTokens * usedProvider.inputCostPerToken;
         const outputCost = outputTokens * usedProvider.outputCostPerToken;
         const totalCost = inputCost + outputCost;
@@ -202,9 +210,10 @@ export default function Component() {
           outputTokens *
             (mostExpensiveProviderOutputCost - usedProvider.outputCostPerToken);
 
-        // Update total tokens and total savings
+        // Update total tokens, total cost, and total savings
         setTotalTokens((prev) => prev + inputTokens + outputTokens);
-        setTotalSaved((prev) => prev + savedCost);
+        setTotalCost((prev) => prev + totalCost);
+        setTotalSavings((prev) => prev + savedCost);
 
         setChatWindows((prev) =>
           prev.map((w) =>
@@ -307,36 +316,71 @@ export default function Component() {
               </Sheet>
 
               <div className="flex items-center space-x-4">
-                <div className="text-sm text-gray-600">
-                  Total Tokens: {formatNumber(totalTokens)}
+                <div className="flex items-center h-10 bg-gray-100 rounded-md px-3 space-x-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center space-x-1 cursor-help">
+                        <Hash className="h-5 w-5 text-blue-500" />
+                        <span className="text-sm font-medium">
+                          {formatNumber(totalTokens)}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Total tokens used</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <div className="w-px h-6 bg-gray-300"></div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center space-x-1 cursor-help">
+                        <DollarSign className="h-5 w-5 text-red-500" />
+                        <span className="text-sm font-medium">
+                          ${totalCost.toFixed(3)}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Total cost</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <div className="w-px h-6 bg-gray-300"></div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center space-x-1 cursor-help">
+                        <PiggyBank className="h-5 w-5 text-green-500" />
+                        <span className="text-sm font-medium">
+                          ${totalSavings.toFixed(3)}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Total savings</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
-                <div className="text-sm text-gray-600">
-                  Saved: ${totalSaved.toFixed(6)}
-                </div>
-                <Tooltip delayDuration={0}>
+                <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       type="default"
                       size="small"
                       onClick={handleAddModelComparison}
-                      className="w-8 h-8 p-0"
+                      className="w-10 h-10"
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    <p className="max-w-xs">
-                      Add a new model comparison window
-                    </p>
+                    <p>Add a new model comparison window</p>
                   </TooltipContent>
                 </Tooltip>
-                <Tooltip delayDuration={0}>
+                <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       type="default"
                       size="small"
                       onClick={handleAddModelComparison}
-                      className="w-8 h-8 p-0"
+                      className="w-10 h-10"
                     >
                       <HelpCircle className="h-4 w-4" />
                     </Button>
