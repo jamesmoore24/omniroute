@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Button, message } from "antd";
+import { Button, message, Modal } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 import {
   Plus,
@@ -41,6 +41,10 @@ export default function Component() {
   const [totalCost, setTotalCost] = useState(0);
   const [totalSavings, setTotalSavings] = useState(0); // New state variable for total savings
   const [showMessageStats, setShowMessageStats] = useState(true);
+
+  // New state variables for modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState("");
 
   const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -291,6 +295,33 @@ export default function Component() {
     }
   };
 
+  // New function to handle top bar element clicks
+  const handleTopBarClick = (element: string) => {
+    let content = "";
+    switch (element) {
+      case "tokens":
+        content = `Total Tokens Used: ${formatNumber(totalTokens)}`;
+        break;
+      case "cost":
+        content = `Total Cost: $${totalCost.toFixed(3)}`;
+        break;
+      case "savings":
+        content = `Total Savings: $${totalSavings.toFixed(3)}`;
+        break;
+      case "addWindow":
+        content = "Add a new model comparison window.";
+        break;
+      case "help":
+        content =
+          "Model routing automatically selects the best AI model between the selected providers based on your preferences for cost, quality, and latency. This ensures optimal performance for each query.";
+        break;
+      default:
+        content = "Default Modal Content";
+    }
+    setModalContent(content);
+    setIsModalOpen(true);
+  };
+
   return (
     <TooltipProvider>
       <div className="flex flex-col h-screen bg-gray-100 text-black">
@@ -317,9 +348,13 @@ export default function Component() {
 
               <div className="flex items-center space-x-4">
                 <div className="flex items-center h-10 bg-gray-100 rounded-md px-3 space-x-2">
+                  {/* Token Info */}
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="flex items-center space-x-1 cursor-help">
+                      <div
+                        className="flex items-center space-x-1 cursor-pointer"
+                        onClick={() => handleTopBarClick("tokens")}
+                      >
                         <Hash className="h-5 w-5 text-blue-500" />
                         <span className="text-sm font-medium">
                           {formatNumber(totalTokens)}
@@ -331,9 +366,13 @@ export default function Component() {
                     </TooltipContent>
                   </Tooltip>
                   <div className="w-px h-6 bg-gray-300"></div>
+                  {/* Cost Info */}
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="flex items-center space-x-1 cursor-help">
+                      <div
+                        className="flex items-center space-x-1 cursor-pointer"
+                        onClick={() => handleTopBarClick("cost")}
+                      >
                         <DollarSign className="h-5 w-5 text-red-500" />
                         <span className="text-sm font-medium">
                           ${totalCost.toFixed(3)}
@@ -345,9 +384,13 @@ export default function Component() {
                     </TooltipContent>
                   </Tooltip>
                   <div className="w-px h-6 bg-gray-300"></div>
+                  {/* Savings Info */}
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="flex items-center space-x-1 cursor-help">
+                      <div
+                        className="flex items-center space-x-1 cursor-pointer"
+                        onClick={() => handleTopBarClick("savings")}
+                      >
                         <PiggyBank className="h-5 w-5 text-green-500" />
                         <span className="text-sm font-medium">
                           ${totalSavings.toFixed(3)}
@@ -359,12 +402,13 @@ export default function Component() {
                     </TooltipContent>
                   </Tooltip>
                 </div>
+                {/* Add Window Button */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       type="default"
                       size="small"
-                      onClick={handleAddModelComparison}
+                      onClick={() => handleTopBarClick("addWindow")}
                       className="w-10 h-10"
                     >
                       <Plus className="h-4 w-4" />
@@ -374,27 +418,15 @@ export default function Component() {
                     <p>Add a new model comparison window</p>
                   </TooltipContent>
                 </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="default"
-                      size="small"
-                      onClick={handleAddModelComparison}
-                      className="w-10 h-10"
-                    >
-                      <HelpCircle className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">
-                      Model routing automatically selects the{" "}
-                      <b>best AI model </b>
-                      between the selected providers based on your preferences
-                      for cost, quality, and latency. This ensures optimal
-                      performance for each query.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
+                {/* Help Button */}
+                <Button
+                  type="default"
+                  size="small"
+                  onClick={() => handleTopBarClick("help")}
+                  className="w-10 h-10"
+                >
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
               </div>
             </div>
             <div className="flex-1 overflow-auto">
@@ -443,6 +475,24 @@ export default function Component() {
             </div>
           </div>
         </div>
+        {/* Modal Component */}
+        <Modal
+          title="Information"
+          open={isModalOpen}
+          onOk={() => setIsModalOpen(false)}
+          onCancel={() => setIsModalOpen(false)}
+          footer={[
+            <Button
+              key="ok"
+              className="bg-orange-500 hover:bg-orange-600 border-none text-white hover:text-orange-500"
+              onClick={() => setIsModalOpen(false)}
+            >
+              OK
+            </Button>,
+          ]}
+        >
+          <p>{modalContent}</p>
+        </Modal>
       </div>
     </TooltipProvider>
   );
