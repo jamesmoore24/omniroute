@@ -84,7 +84,7 @@ export function parseMarkdown(content: string): string {
       ); // Links
   };
 
-  lines.forEach((line, index) => {
+  lines.forEach((line) => {
     const codeBlockStartRegex = /^```(\w+)?$/;
     const codeBlockEndRegex = /^```$/;
     const listItemRegex = /^(\s*)([-*+])\s+(.*)$/;
@@ -118,7 +118,6 @@ export function parseMarkdown(content: string): string {
         codeBlockContent = "";
       } else if (listItemMatch) {
         const indent = listItemMatch[1].length;
-        const bullet = listItemMatch[2];
         const text = listItemMatch[3];
 
         // Assuming 2 spaces per indentation level

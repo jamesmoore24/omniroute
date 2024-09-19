@@ -38,7 +38,7 @@ export const LLMResponse: React.FC<Message> = ({
     };
 
     highlightCodeBlocks();
-  }, [content]);
+  }, [content, metrics]);
 
   return (
     <div className="p-4 rounded-lg shadow bg-gray-50 w-full">
