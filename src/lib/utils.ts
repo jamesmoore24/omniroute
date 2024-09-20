@@ -37,7 +37,7 @@ export function calculateTokens(text: string): number {
 
 /**
  * Parses markdown content into HTML, supporting headers, bold, italics, inline code,
- * code blocks with syntax highlighting, links, and nested bullet points.
+ * code blocks with syntax highlighting, links, nested bullet points, and horizontal rules.
  */
 export function parseMarkdown(content: string): string {
   const lines = content.split("\n");
@@ -88,6 +88,7 @@ export function parseMarkdown(content: string): string {
   const codeBlockStartRegex = /^\s*```(\w+)?\s*$/;
   const codeBlockEndRegex = /^\s*```\s*$/;
   const listItemRegex = /^(\s*)([-*+]|\d+\.)\s+(.*)$/;
+  const horizontalRuleRegex = /^\s*---\s*$/; // Regex to detect triple hyphens
 
   lines.forEach((line) => {
     const headerMatch = line.match(/^(#{1,6})\s+(.+)$/);
@@ -110,13 +111,19 @@ export function parseMarkdown(content: string): string {
       }
     } else if (headerMatch) {
       // Header
+      closeLists(0); // Ensure lists are closed before headers
       const level = headerMatch[1].length;
       const headerContent = processInlineMarkdown(escapeHtml(headerMatch[2]));
       html += `<h${level}>${headerContent}</h${level}>`;
     } else if (codeBlockStartMatch) {
       // Start of code block
+      closeLists(0); // Ensure lists are closed before starting a code block
       inCodeBlock = true;
       codeBlockLanguage = codeBlockStartMatch[1] || "plaintext";
+    } else if (horizontalRuleRegex.test(line)) {
+      // Horizontal Rule
+      closeLists(0); // Ensure lists are closed before adding a horizontal rule
+      html += `<hr />`;
     } else if (listItemRegex.test(line)) {
       const match = line.match(listItemRegex)!;
       const indent = match[1].length;
