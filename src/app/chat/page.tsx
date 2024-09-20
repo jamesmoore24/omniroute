@@ -470,19 +470,9 @@ export default function Component() {
         </div>
         {/* Modal Component */}
         <Modal
-          title="Information"
           open={isModalOpen}
-          onOk={() => setIsModalOpen(false)}
           onCancel={() => setIsModalOpen(false)}
-          footer={[
-            <Button
-              key="ok"
-              className="bg-orange-500 hover:bg-orange-600 border-none text-white"
-              onClick={() => setIsModalOpen(false)}
-            >
-              OK
-            </Button>,
-          ]}
+          footer={null}
         >
           <p>{modalContent}</p>
         </Modal>
