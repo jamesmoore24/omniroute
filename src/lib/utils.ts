@@ -84,11 +84,14 @@ export function parseMarkdown(content: string): string {
       ); // Links
   };
 
+  // Updated regular expressions to handle leading/trailing whitespace
+  const codeBlockStartRegex = /^\s*```(\w+)?\s*$/;
+  const codeBlockEndRegex = /^\s*```\s*$/;
+  const listItemRegex = /^(\s*)([-*+]|\d+\.)\s+(.*)$/;
+
   lines.forEach((line) => {
     const headerMatch = line.match(/^(#{1,6})\s+(.+)$/);
-    const codeBlockStartRegex = /^```(\w+)?$/;
-    const codeBlockEndRegex = /^```$/;
-    const listItemRegex = /^(\s*)([-*+]|\d+\.)\s+(.*)$/;
+    const codeBlockStartMatch = line.match(codeBlockStartRegex);
 
     if (inCodeBlock) {
       if (codeBlockEndRegex.test(line)) {
@@ -110,10 +113,10 @@ export function parseMarkdown(content: string): string {
       const level = headerMatch[1].length;
       const headerContent = processInlineMarkdown(escapeHtml(headerMatch[2]));
       html += `<h${level}>${headerContent}</h${level}>`;
-    } else if (codeBlockStartRegex.test(line)) {
+    } else if (codeBlockStartMatch) {
       // Start of code block
       inCodeBlock = true;
-      codeBlockLanguage = line.match(codeBlockStartRegex)?.[1] || "plaintext";
+      codeBlockLanguage = codeBlockStartMatch[1] || "plaintext";
     } else if (listItemRegex.test(line)) {
       const match = line.match(listItemRegex)!;
       const indent = match[1].length;
@@ -147,6 +150,16 @@ export function parseMarkdown(content: string): string {
 
   // Close any remaining open lists
   closeLists(0);
+
+  // Handle unclosed code blocks at the end of the content
+  if (inCodeBlock) {
+    const escapedCode = escapeHtml(codeBlockContent.trim());
+    if (codeBlockLanguage) {
+      html += `<div class="code-block"><span class="language-label">${codeBlockLanguage}</span><pre class="language-${codeBlockLanguage}"><code class="language-${codeBlockLanguage}">${escapedCode}</code></pre></div>`;
+    } else {
+      html += `<pre class="language-plaintext"><code class="language-plaintext">${escapedCode}</code></pre>`;
+    }
+  }
 
   return html.trim();
 }
