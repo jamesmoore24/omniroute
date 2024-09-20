@@ -473,6 +473,7 @@ export default function Component() {
           open={isModalOpen}
           onCancel={() => setIsModalOpen(false)}
           footer={null}
+          style={{ width: "auto" }} // Adjust modal width
         >
           <p>{modalContent}</p>
         </Modal>
