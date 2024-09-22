@@ -14,6 +14,8 @@ import {
   PiggyBank,
 } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import SidebarContent from "@/components/Chat/ChatSideBar";
 
 interface TopBarProps {
   totalTokens: number;
@@ -36,18 +38,28 @@ const TopBar: React.FC<TopBarProps> = ({
   onAddWindow,
   onHelp,
   onInfoClick,
-  onToggleSidebar,
+  selectedProviders,
+  setSelectedProviders,
+  showMessageStats,
+  setShowMessageStats,
 }) => {
   return (
     <div className="p-4 flex items-center justify-between border-b border-gray-200">
-      <Button
-        type="default"
-        size="small"
-        className="w-8 h-8 p-0"
-        onClick={onToggleSidebar}
-      >
-        <Menu className="h-4 w-4" />
-      </Button>
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button type="default" size="small" className="w-8 h-8 p-0">
+            <Menu className="h-4 w-4" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-64 p-0 bg-white">
+          <SidebarContent
+            selectedProviders={selectedProviders}
+            setSelectedProviders={setSelectedProviders}
+            showMessageStats={showMessageStats}
+            setShowMessageStats={setShowMessageStats}
+          />
+        </SheetContent>
+      </Sheet>
 
       <div className="flex items-center space-x-4">
         <div className="flex items-center h-10 bg-gray-100 rounded-md px-3 space-x-2">

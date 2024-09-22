@@ -37,7 +37,9 @@ const ChatArea: React.FC<ChatAreaProps> = ({
           showMessageStats={showMessageStats}
           onClose={onCloseWindow}
           isMain={window.id === "main"}
-          scrollRef={(el) => (scrollRefs.current[window.id] = el)}
+          scrollRef={(el) =>
+            (scrollRefs.current[window.id] = el as HTMLDivElement)
+          }
         />
       ))}
     </div>

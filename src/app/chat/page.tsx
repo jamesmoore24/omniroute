@@ -13,8 +13,6 @@ import ChatArea from "@/components/Chat/ChatArea";
 import InputArea from "@/components/Chat/InputArea";
 import ModalComponent from "@/components/Chat/ModalComponent";
 import ImageUpload from "@/components/Chat/ImageUpload";
-import SidebarContent from "@/components/Chat/ChatSideBar";
-import { useResizable } from "@/hooks/useResizable";
 
 export default function Component() {
   const { isSignedIn } = useAuth();
@@ -41,7 +39,6 @@ export default function Component() {
   >([]);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { width: sidebarWidth, startResizing } = useResizable(256, 150, 350);
 
   const handleAddModelComparison = () => {
     if (chatWindows.length < 4) {
@@ -371,25 +368,6 @@ export default function Component() {
       <div className="flex flex-col h-screen bg-gray-100 text-black">
         <Header />
         <div className="flex flex-1 overflow-hidden">
-          {isSidebarOpen && (
-            <>
-              <div
-                className="bg-white border-r border-gray-200 relative"
-                style={{ width: `${sidebarWidth}px` }}
-              >
-                <SidebarContent
-                  selectedProviders={selectedProviders}
-                  setSelectedProviders={setSelectedProviders}
-                  showMessageStats={showMessageStats}
-                  setShowMessageStats={setShowMessageStats}
-                />
-                <div
-                  className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-gray-300 hover:bg-gray-400"
-                  onMouseDown={startResizing}
-                />
-              </div>
-            </>
-          )}
           <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
             <TopBar
               totalTokens={totalTokens}

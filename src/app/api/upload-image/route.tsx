@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
-export const config = { api: { bodyParser: false } };
-
 export async function POST(req: NextRequest) {
   console.log("POST request received for image upload");
   try {
