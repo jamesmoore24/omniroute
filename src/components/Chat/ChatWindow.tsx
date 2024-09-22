@@ -21,7 +21,7 @@ export default function ChatWindow({
 
   return (
     <div
-      className={`flex-1 flex flex-col min-w-[300px] h-full relative pt-16 ${
+      className={`flex-1 flex flex-col min-w-[300px] h-full relative ${
         !isMain ? "border-l border-gray-250 h-full" : ""
       }`}
     >

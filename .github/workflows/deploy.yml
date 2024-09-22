@@ -68,7 +68,7 @@ jobs:
             set -e
             cd /var/www/omniroute
             echo "Restarting PM2 process..."
-            pm2 restart omniroute || pm2 start npm --name "omniroute" -- start
+            pm2 delete omniroute; HOST=178.128.147.137 pm2 start npm --name "omniroute" -- start
             echo "Reloading Nginx..."
             sudo systemctl reload nginx
             echo "Post-deployment commands completed successfully"

@@ -28,20 +28,22 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   }, [chatWindows]);
 
   return (
-    <div className="flex h-full">
-      {chatWindows.map((window) => (
-        <ChatWindow
-          key={window.id}
-          id={window.id}
-          messages={window.messages}
-          showMessageStats={showMessageStats}
-          onClose={onCloseWindow}
-          isMain={window.id === "main"}
-          scrollRef={(el) =>
-            (scrollRefs.current[window.id] = el as HTMLDivElement)
-          }
-        />
-      ))}
+    <div className="flex-1 overflow-auto">
+      <div className="flex h-full">
+        {chatWindows.map((window) => (
+          <ChatWindow
+            key={window.id}
+            id={window.id}
+            messages={window.messages}
+            showMessageStats={showMessageStats}
+            onClose={onCloseWindow}
+            isMain={window.id === "main"}
+            scrollRef={(el) =>
+              (scrollRefs.current[window.id] = el as HTMLDivElement)
+            }
+          />
+        ))}
+      </div>
     </div>
   );
 };
