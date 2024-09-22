@@ -4,6 +4,9 @@ import "dotenv/config";
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  images: {
+    domains: ["i.imgur.com"], // Add this line
+  },
 };
 
 export default nextConfig;

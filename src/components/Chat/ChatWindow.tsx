@@ -48,24 +48,25 @@ export default function ChatWindow({
                 msg.sender === "user" ? "items-end" : "items-start"
               } ${msg.sender === "user" ? "max-w-[80%]" : "w-full"}`}
             >
-              {msg.sender === "user" ? (
-                <div className="p-3 rounded-lg shadow bg-orange-100 w-full">
-                  <p className="text-black whitespace-pre-wrap text-left">
-                    {msg.content}
-                  </p>
-                </div>
-              ) : (
-                <LLMResponse
-                  id={msg.id}
-                  sender={msg.sender}
-                  provider={msg.provider || ""}
-                  content={msg.content}
-                  isLoading={msg.isLoading || false}
-                  providerRevealed={msg.providerRevealed || false}
-                  metrics={msg.metrics}
-                  showMessageStats={showMessageStats}
-                />
-              )}
+              {msg.type !== "image" &&
+                (msg.sender === "user" ? (
+                  <div className="p-3 rounded-lg shadow bg-orange-100 w-full">
+                    <p className="text-black whitespace-pre-wrap text-left">
+                      {msg.content}
+                    </p>
+                  </div>
+                ) : (
+                  <LLMResponse
+                    id={msg.id}
+                    sender={msg.sender}
+                    provider={msg.provider || ""}
+                    content={msg.content}
+                    isLoading={msg.isLoading || false}
+                    providerRevealed={msg.providerRevealed || false}
+                    metrics={msg.metrics}
+                    showMessageStats={showMessageStats}
+                  />
+                ))}
             </div>
           </div>
         ))}

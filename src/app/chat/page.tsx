@@ -1,31 +1,20 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { Button, message, Modal } from "antd";
-import { SendOutlined } from "@ant-design/icons";
-import {
-  Plus,
-  Menu,
-  HelpCircle,
-  Hash,
-  DollarSign,
-  PiggyBank,
-} from "lucide-react";
+import React, { useState } from "react";
+import { message } from "antd";
 import { Header } from "@/components/Header";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import SidebarContent from "@/components/Chat/ChatSideBar";
-import ChatWindow from "@/components/Chat/ChatWindow";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { LLM_PROVIDERS } from "@/data/aiData";
 import { formatNumber } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { ChatWindowType, Message } from "@/types/chat";
-import TextArea from "antd/lib/input/TextArea";
+import TopBar from "@/components/Chat/TopBar";
+import ChatArea from "@/components/Chat/ChatArea";
+import InputArea from "@/components/Chat/InputArea";
+import ModalComponent from "@/components/Chat/ModalComponent";
+import ImageUpload from "@/components/Chat/ImageUpload";
+import SidebarContent from "@/components/Chat/ChatSideBar";
+import { useResizable } from "@/hooks/useResizable";
 
 export default function Component() {
   const { isSignedIn } = useAuth();
@@ -39,26 +28,20 @@ export default function Component() {
   );
   const [totalTokens, setTotalTokens] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
-  const [totalSavings, setTotalSavings] = useState(0); // New state variable for total savings
+  const [totalSavings, setTotalSavings] = useState(0);
   const [showMessageStats, setShowMessageStats] = useState(true);
 
-  // New state variables for modal
+  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
 
-  const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  // New state to manage uploaded images before sending
+  const [composedImages, setComposedImages] = useState<
+    { url: string; deleteHash: string }[]
+  >([]);
 
-  const scrollToBottom = (windowId: string) => {
-    if (scrollRefs.current[windowId]) {
-      scrollRefs.current[windowId]?.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  useEffect(() => {
-    chatWindows.forEach((window) => {
-      scrollToBottom(window.id);
-    });
-  }, [chatWindows]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { width: sidebarWidth, startResizing } = useResizable(256, 150, 350);
 
   const handleAddModelComparison = () => {
     if (chatWindows.length < 4) {
@@ -82,21 +65,44 @@ export default function Component() {
 
   const handleSendMessage = async () => {
     const startTime = Date.now();
-    if (!isSignedIn || !query.trim()) return;
+    if (!isSignedIn || (!query.trim() && composedImages.length === 0)) return;
 
-    const newUserMessage: Message = {
-      id: Date.now(),
-      content: query,
-      sender: "user",
-    };
+    // Create a new message for text if any
+    if (query.trim()) {
+      const newUserMessage: Message = {
+        id: Date.now(),
+        content: query,
+        sender: "user",
+        type: "text",
+      };
 
-    setChatWindows((prev) =>
-      prev.map((window) => ({
-        ...window,
-        messages: [...window.messages, newUserMessage],
-      }))
-    );
+      setChatWindows((prev) =>
+        prev.map((window) => ({
+          ...window,
+          messages: [...window.messages, newUserMessage],
+        }))
+      );
+    }
 
+    // Create new messages for each image
+    composedImages.forEach((image) => {
+      const newImageMessage: Message = {
+        id: Date.now() + Math.random(), // Ensure unique ID
+        content: image.url,
+        sender: "user",
+        type: "image",
+      };
+
+      setChatWindows((prev) =>
+        prev.map((window) => ({
+          ...window,
+          messages: [...window.messages, newImageMessage],
+        }))
+      );
+    });
+
+    // Clear the composed images and query after sending
+    setComposedImages([]);
     setQuery("");
 
     for (const window of chatWindows) {
@@ -110,6 +116,7 @@ export default function Component() {
         provider: provider,
         isLoading: true,
         providerRevealed: false,
+        type: "text",
       };
 
       setChatWindows((prev) =>
@@ -274,6 +281,34 @@ export default function Component() {
     }
   };
 
+  // Function to handle image deletion
+  const handleDeleteImage = async (image: {
+    url: string;
+    deleteHash: string;
+  }) => {
+    try {
+      const response = await fetch("/api/delete-image", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deletehash: image.deleteHash }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        message.success("Image deleted successfully.");
+        setComposedImages((prev) =>
+          prev.filter((img) => img.deleteHash !== image.deleteHash)
+        );
+      } else {
+        throw new Error(data.error || "Failed to delete image.");
+      }
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      message.error("Failed to delete image.");
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Tab") {
       // ... existing Tab handling code ...
@@ -295,7 +330,6 @@ export default function Component() {
     }
   };
 
-  // New function to handle top bar element clicks
   const handleTopBarClick = (element: string) => {
     let content = "";
     switch (element) {
@@ -322,161 +356,87 @@ export default function Component() {
     setIsModalOpen(true);
   };
 
+  const [triggerFileUpload, setTriggerFileUpload] = useState(false);
+
+  const resetTrigger = () => {
+    setTriggerFileUpload(false);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <TooltipProvider>
       <div className="flex flex-col h-screen bg-gray-100 text-black">
         <Header />
         <div className="flex flex-1 overflow-hidden">
-          {/* Main Chat Area */}
-          <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
-            <div className="p-4 flex items-center justify-between border-b border-gray-200">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button type="default" size="small" className="w-8 h-8 p-0">
-                    <Menu className="h-4 w-4" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-64 p-0 bg-white">
-                  <SidebarContent
-                    selectedProviders={selectedProviders}
-                    setSelectedProviders={setSelectedProviders}
-                    showMessageStats={showMessageStats}
-                    setShowMessageStats={setShowMessageStats}
-                  />
-                </SheetContent>
-              </Sheet>
-
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center h-10 bg-gray-100 rounded-md px-3 space-x-2">
-                  {/* Token Info */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div
-                        className="flex items-center space-x-1 cursor-pointer"
-                        onClick={() => handleTopBarClick("tokens")}
-                      >
-                        <Hash className="h-5 w-5 text-blue-500" />
-                        <span className="text-sm font-medium">
-                          {formatNumber(totalTokens)}
-                        </span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Total tokens used</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <div className="w-px h-6 bg-gray-300"></div>
-                  {/* Cost Info */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div
-                        className="flex items-center space-x-1 cursor-pointer"
-                        onClick={() => handleTopBarClick("cost")}
-                      >
-                        <DollarSign className="h-5 w-5 text-red-500" />
-                        <span className="text-sm font-medium">
-                          ${totalCost.toFixed(3)}
-                        </span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Total cost</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <div className="w-px h-6 bg-gray-300"></div>
-                  {/* Savings Info */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div
-                        className="flex items-center space-x-1 cursor-pointer"
-                        onClick={() => handleTopBarClick("savings")}
-                      >
-                        <PiggyBank className="h-5 w-5 text-green-500" />
-                        <span className="text-sm font-medium">
-                          ${totalSavings.toFixed(3)}
-                        </span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Total savings</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                {/* Add Window Button */}
-                <Button
-                  type="default"
-                  size="small"
-                  onClick={() => handleAddModelComparison()}
-                  className="w-10 h-10"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-                {/* Help Button */}
-                <Button
-                  type="default"
-                  size="small"
-                  onClick={() => handleTopBarClick("help")}
-                  className="w-10 h-10"
-                >
-                  <HelpCircle className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="flex-1 overflow-auto">
-              <div className="flex h-full">
-                {chatWindows.map((window) => (
-                  <ChatWindow
-                    key={window.id}
-                    id={window.id}
-                    messages={window.messages}
-                    showMessageStats={showMessageStats}
-                    onClose={handleCloseWindow}
-                    isMain={window.id === "main"}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="p-4 border-t">
-              <form
-                className="flex items-center"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSendMessage();
-                }}
+          {isSidebarOpen && (
+            <>
+              <div
+                className="bg-white border-r border-gray-200 relative"
+                style={{ width: `${sidebarWidth}px` }}
               >
-                <TextArea
-                  placeholder={
-                    isSignedIn ? "Start a message..." : "Sign in to chat"
-                  }
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="flex-1 mr-2 resize-none focus:border-orange-500 focus:ring-orange-500 hover:border-orange-500 hover:ring-orange-500"
-                  disabled={!isSignedIn}
-                  autoSize={{ minRows: 1, maxRows: 6 }}
+                <SidebarContent
+                  selectedProviders={selectedProviders}
+                  setSelectedProviders={setSelectedProviders}
+                  showMessageStats={showMessageStats}
+                  setShowMessageStats={setShowMessageStats}
                 />
-                <Button
-                  type="primary"
-                  icon={<SendOutlined />}
-                  onClick={handleSendMessage}
-                  disabled={!isSignedIn}
-                  className="bg-orange-500 hover:bg-orange-600 border-none"
-                >
-                  Send
-                </Button>
-              </form>
+                <div
+                  className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-gray-300 hover:bg-gray-400"
+                  onMouseDown={startResizing}
+                />
+              </div>
+            </>
+          )}
+          <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
+            <TopBar
+              totalTokens={totalTokens}
+              totalCost={totalCost}
+              totalSavings={totalSavings}
+              onAddWindow={handleAddModelComparison}
+              onHelp={() => handleTopBarClick("help")}
+              onInfoClick={handleTopBarClick}
+              selectedProviders={selectedProviders}
+              setSelectedProviders={setSelectedProviders}
+              showMessageStats={showMessageStats}
+              setShowMessageStats={setShowMessageStats}
+              onToggleSidebar={toggleSidebar}
+            />
+            <ChatArea
+              chatWindows={chatWindows}
+              showMessageStats={showMessageStats}
+              onCloseWindow={handleCloseWindow}
+            />
+            <div className="chat-bar">
+              <ImageUpload
+                onUploadSuccess={(url, deleteHash) =>
+                  setComposedImages((prev) => [...prev, { url, deleteHash }])
+                }
+                triggerFileUpload={triggerFileUpload}
+                resetTrigger={resetTrigger}
+              />
+              <InputArea
+                query={query}
+                setQuery={setQuery}
+                onSend={handleSendMessage}
+                onKeyDown={handleKeyDown}
+                isSignedIn={isSignedIn ?? false}
+                uploadedImages={composedImages}
+                onDeleteImage={handleDeleteImage}
+                onUploadSuccess={(url, deleteHash) =>
+                  setComposedImages((prev) => [...prev, { url, deleteHash }])
+                }
+              />
             </div>
           </div>
         </div>
-        {/* Modal Component */}
-        <Modal
-          open={isModalOpen}
-          onCancel={() => setIsModalOpen(false)}
-          footer={null}
-          style={{ width: "auto" }} // Adjust modal width
-        >
-          <p>{modalContent}</p>
-        </Modal>
+        <ModalComponent
+          isOpen={isModalOpen}
+          content={modalContent}
+          onClose={() => setIsModalOpen(false)}
+        />
       </div>
     </TooltipProvider>
   );

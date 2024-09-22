@@ -7,6 +7,7 @@ export interface Message {
   providerRevealed?: boolean;
   metrics?: MessageMetrics;
   showMessageStats?: boolean;
+  type?: "text" | "image";
 }
 
 export interface MessageMetrics {
@@ -24,6 +25,7 @@ export interface ChatWindowProps {
   showMessageStats: boolean;
   onClose: (id: string) => void;
   isMain: boolean;
+  scrollRef?: (el: HTMLElement | null) => void;
 }
 
 export type ChatWindowType = {
