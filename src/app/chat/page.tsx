@@ -64,7 +64,10 @@ export default function Component() {
     const startTime = Date.now();
     if (!isSignedIn || (!query.trim() && composedImages.length === 0)) return;
 
-    const newMessage: { role: string; content: any[] } = {
+    const newMessage: {
+      role: string;
+      content: { type: string; text?: string; image_url?: { url: string } }[];
+    } = {
       role: "user",
       content: [],
     };

@@ -1,6 +1,8 @@
 export interface Message {
   id: number;
-  content: string | string[];
+  content:
+    | string
+    | { type: string; text?: string; image_url?: { url: string } }[];
   sender: "user" | "ai";
   provider?: string;
   isLoading?: boolean;

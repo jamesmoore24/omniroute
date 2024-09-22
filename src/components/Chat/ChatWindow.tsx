@@ -3,7 +3,7 @@ import { Button } from "antd";
 import { X } from "lucide-react";
 import { LLMResponse } from "./LLMResponse";
 import { ChatWindowProps } from "@/types";
-
+import Image from "next/image";
 export default function ChatWindow({
   id,
   messages,
@@ -54,17 +54,34 @@ export default function ChatWindow({
                     {msg.images && msg.images.length > 0 && (
                       <div className="flex space-x-2 mb-2">
                         {msg.images.map((imageUrl, index) => (
-                          <img
+                          <Image
                             key={index}
                             src={imageUrl}
                             alt={`uploaded-${index}`}
-                            className="h-10 w-10 object-cover rounded border border-gray-300"
+                            width={40} // Adjusted for the desired size
+                            height={40} // Adjusted for the desired size
+                            className="object-cover rounded border border-gray-300"
                           />
                         ))}
                       </div>
                     )}
                     <p className="text-black whitespace-pre-wrap text-left">
-                      {msg.content}
+                      {Array.isArray(msg.content)
+                        ? msg.content.map((item, index) => (
+                            <span key={index}>
+                              {item.text}
+                              {item.image_url && (
+                                <Image
+                                  src={item.image_url.url}
+                                  alt="Content"
+                                  width={40} // Adjusted for the desired size
+                                  height={40} // Adjusted for the desired size
+                                  className="object-cover rounded border border-gray-300"
+                                />
+                              )}
+                            </span>
+                          ))
+                        : msg.content}
                     </p>
                   </div>
                 ) : (

@@ -16,7 +16,7 @@ export const LLMResponse: React.FC<Message> = ({
   const [parsedContent, setParsedContent] = useState<string>("");
 
   useEffect(() => {
-    const parsed = parseMarkdown(content);
+    const parsed = typeof content === "string" ? parseMarkdown(content) : "";
 
     // Highlight all code blocks using Prism
     const highlightCodeBlocks = () => {
