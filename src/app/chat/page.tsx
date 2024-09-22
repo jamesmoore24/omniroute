@@ -64,44 +64,42 @@ export default function Component() {
     const startTime = Date.now();
     if (!isSignedIn || (!query.trim() && composedImages.length === 0)) return;
 
-    // Create a new message for text if any
-    if (query.trim()) {
-      const newUserMessage: Message = {
-        id: Date.now(),
-        content: query,
-        sender: "user",
-        type: "text",
-      };
+    const newMessage: { role: string; content: any[] } = {
+      role: "user",
+      content: [],
+    };
 
-      setChatWindows((prev) =>
-        prev.map((window) => ({
-          ...window,
-          messages: [...window.messages, newUserMessage],
-        }))
-      );
+    // Add text content if there's a query
+    if (query.trim()) {
+      newMessage.content.push({ type: "text", text: query });
     }
 
-    // Create new messages for each image
+    // Add image content
     composedImages.forEach((image) => {
-      const newImageMessage: Message = {
-        id: Date.now() + Math.random(), // Ensure unique ID
-        content: image.url,
-        sender: "user",
-        type: "image",
-      };
-
-      setChatWindows((prev) =>
-        prev.map((window) => ({
-          ...window,
-          messages: [...window.messages, newImageMessage],
-        }))
-      );
+      newMessage.content.push({
+        type: "image_url",
+        image_url: { url: image.url },
+      });
     });
+
+    // Update chat windows with new message
+    setChatWindows((prev) =>
+      prev.map((window) => ({
+        ...window,
+        messages: window.messages.concat({
+          id: Date.now(),
+          content: query,
+          sender: "user",
+          images: composedImages.map((image) => image.url),
+        }),
+      }))
+    );
 
     // Clear the composed images and query after sending
     setComposedImages([]);
     setQuery("");
 
+    // Rest of the function (API call, etc.)
     for (const window of chatWindows) {
       const provider =
         window.selectedProvider ||
@@ -124,20 +122,24 @@ export default function Component() {
         )
       );
 
-      const conversationHistory = window.messages.map((msg) => ({
-        role: msg.sender === "user" ? "user" : "assistant",
-        content: msg.content,
-      }));
+      const conversationHistory = [...window.messages]
+        .map((msg) => {
+          return {
+            role: msg.sender === "user" ? "user" : "assistant",
+            content: msg.content,
+          };
+        })
+        .concat(newMessage);
 
       try {
+        console.log("Conversation history:", conversationHistory);
+        console.log(newMessage);
+
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            messages: [
-              ...conversationHistory,
-              { role: "user", content: query },
-            ],
+            messages: conversationHistory,
             provider: newAiMessage.provider,
           }),
         });

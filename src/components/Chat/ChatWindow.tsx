@@ -21,7 +21,7 @@ export default function ChatWindow({
 
   return (
     <div
-      className={`flex-1 flex flex-col min-w-[300px] h-full relative ${
+      className={`flex-1 flex flex-col min-w-[300px] h-full relative pt-16 ${
         !isMain ? "border-l border-gray-250 h-full" : ""
       }`}
     >
@@ -51,6 +51,18 @@ export default function ChatWindow({
               {msg.type !== "image" &&
                 (msg.sender === "user" ? (
                   <div className="p-3 rounded-lg shadow bg-orange-100 w-full">
+                    {msg.images && msg.images.length > 0 && (
+                      <div className="flex space-x-2 mb-2">
+                        {msg.images.map((imageUrl, index) => (
+                          <img
+                            key={index}
+                            src={imageUrl}
+                            alt={`uploaded-${index}`}
+                            className="h-10 w-10 object-cover rounded border border-gray-300"
+                          />
+                        ))}
+                      </div>
+                    )}
                     <p className="text-black whitespace-pre-wrap text-left">
                       {msg.content}
                     </p>

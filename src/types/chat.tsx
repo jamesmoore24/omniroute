@@ -1,12 +1,13 @@
 export interface Message {
   id: number;
-  content: string;
+  content: string | string[];
   sender: "user" | "ai";
   provider?: string;
   isLoading?: boolean;
   providerRevealed?: boolean;
   metrics?: MessageMetrics;
   showMessageStats?: boolean;
+  images?: string[];
   type?: "text" | "image";
 }
 

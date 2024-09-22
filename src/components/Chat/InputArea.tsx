@@ -97,7 +97,7 @@ const InputArea: React.FC<InputAreaProps> = ({
                 alt={`uploaded-${index}`}
                 width={48} // Assuming 12 * 4 for the width in pixels
                 height={48} // Assuming 12 * 4 for the height in pixels
-                className="object-cover rounded border border-gray-300"
+                className="object-cover rounded border border-gray-300 aspect-square"
               />
               <button
                 className="absolute -top-2.5 -right-2.5 bg-gray-200 text-black rounded-full w-6 h-6 flex items-center justify-center focus:outline-none"
