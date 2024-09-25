@@ -132,43 +132,20 @@ export const models = [
   "llama-3.1-8b",
   "llama-3.1-405b",
   "sonnet-3.5-turbo",
+  "llama-3.1-70b",
 ];
 
 export const LLM_PROVIDERS = [
   {
-    name: "GPT-4o-mini",
-    avatar: "G",
-    inputCostPerToken: 0.000000015,
-    outputCostPerToken: 0.00000006,
-  },
-  {
-    name: "sonnet-3.5-turbo",
-    avatar: "C",
-    inputCostPerToken: 0.00000008,
-    outputCostPerToken: 0.00000008,
-  },
-  {
-    name: "llama-3.1-405b-versatile",
-    avatar: "P",
-    inputCostPerToken: 0.00000006,
-    outputCostPerToken: 0.00000006,
-  },
-  {
-    name: "gemini-1.5-flash",
+    name: "llama3.1-8b",
     avatar: "L",
-    inputCostPerToken: 0.00000004,
-    outputCostPerToken: 0.00000004,
+    inputCostPerToken: 0.0000001, // $0.10 per 1M tokens
+    outputCostPerToken: 0.0000001, // $0.10 per 1M tokens
   },
   {
-    name: "mistral-large-16k",
-    avatar: "C",
-    inputCostPerToken: 0.00000005,
-    outputCostPerToken: 0.00000005,
-  },
-  {
-    name: "deepseek-coder",
-    avatar: "A",
-    inputCostPerToken: 0.00000009,
-    outputCostPerToken: 0.00000009,
+    name: "llama3.1-70b",
+    avatar: "L",
+    inputCostPerToken: 0.0000006, // $0.60 per 1M tokens
+    outputCostPerToken: 0.0000006, // $0.60 per 1M tokens
   },
 ];

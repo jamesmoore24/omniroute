@@ -61,10 +61,18 @@ export default function Component() {
   };
 
   const handleSendMessage = async () => {
-    const startTime = Date.now();
     if (!isSignedIn || (!query.trim() && composedImages.length === 0)) return;
 
-    const newMessage: {
+    //TODO: Make this dependent on the provider
+
+    //CEREBRAS integration without image support
+    const newMessage = {
+      role: "user",
+      content: query,
+    };
+
+    //OPENAI integration with image support
+    /* const newMessage: {
       role: string;
       content: { type: string; text?: string; image_url?: { url: string } }[];
     } = {
@@ -83,7 +91,7 @@ export default function Component() {
         type: "image_url",
         image_url: { url: image.url },
       });
-    });
+    }); */
 
     // Update chat windows with new message
     setChatWindows((prev) =>
@@ -105,7 +113,6 @@ export default function Component() {
     // Rest of the function (API call, etc.)
     for (const window of chatWindows) {
       const provider =
-        window.selectedProvider ||
         selectedProviders[Math.floor(Math.random() * selectedProviders.length)];
       const newAiMessage: Message = {
         id: Date.now() + 1,
@@ -135,8 +142,8 @@ export default function Component() {
         .concat(newMessage);
 
       try {
-        console.log("Conversation history:", conversationHistory);
-        console.log(newMessage);
+        /* console.log("Conversation history:", conversationHistory);
+        console.log(newMessage); */
 
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -158,8 +165,10 @@ export default function Component() {
           inputTokens: number;
           outputTokens: number;
           totalTokens: number;
-          reasoningTokens: number;
+          //reasoningTokens: number;
         } | null = null;
+
+        let time = 0;
 
         while (true) {
           const { done, value } = await reader!.read();
@@ -167,7 +176,10 @@ export default function Component() {
           const chunk = decoder.decode(value);
 
           if (chunk.includes("USAGE_INFO:")) {
-            const [content, usageInfo] = chunk.split("USAGE_INFO:");
+            console.log(chunk);
+            const [content, usageAndTime] = chunk.split("USAGE_INFO:");
+            const [usageInfo, timeElapsed] = usageAndTime.split("TIME:");
+            time = parseFloat(timeElapsed);
             aiResponseContent += content;
             const usage = JSON.parse(usageInfo);
 
@@ -176,7 +188,7 @@ export default function Component() {
               inputTokens: usage.prompt_tokens,
               outputTokens: usage.completion_tokens,
               totalTokens: usage.total_tokens,
-              reasoningTokens: usage.completion_tokens_details.reasoning_tokens,
+              //reasoningTokens: usage.completion_tokens_details.reasoning_tokens,
             };
           } else {
             aiResponseContent += chunk;
@@ -212,10 +224,14 @@ export default function Component() {
         const outputCost = outputTokens * usedProvider.outputCostPerToken;
         const totalCost = inputCost + outputCost;
         const mostExpensiveProviderInputCost = Math.max(
-          ...LLM_PROVIDERS.map((p) => p.inputCostPerToken)
+          ...selectedProviders.map(
+            (p) => LLM_PROVIDERS.find((lp) => lp.name === p)!.inputCostPerToken
+          )
         );
         const mostExpensiveProviderOutputCost = Math.max(
-          ...LLM_PROVIDERS.map((p) => p.outputCostPerToken)
+          ...selectedProviders.map(
+            (p) => LLM_PROVIDERS.find((lp) => lp.name === p)!.outputCostPerToken
+          )
         );
         const savedCost =
           inputTokens *
@@ -227,6 +243,8 @@ export default function Component() {
         setTotalTokens((prev) => prev + inputTokens + outputTokens);
         setTotalCost((prev) => prev + totalCost);
         setTotalSavings((prev) => prev + savedCost);
+
+        console.log((((inputTokens + outputTokens) / time) * 1000).toFixed(2));
 
         setChatWindows((prev) =>
           prev.map((w) =>
@@ -240,14 +258,9 @@ export default function Component() {
                           metrics: {
                             inputTokens,
                             outputTokens,
-                            tokensPerSecond: parseFloat(
-                              (
-                                ((inputTokens + outputTokens) /
-                                  (Date.now() - startTime)) *
-                                1000
-                              ).toFixed(2)
-                            ),
-                            latency: (Date.now() - startTime).toFixed(2),
+                            tokensPerSecond:
+                              ((inputTokens + outputTokens) / time) * 1000,
+                            latency: time.toFixed(2),
                             cost: totalCost.toFixed(6),
                             saved: savedCost.toFixed(6),
                           },

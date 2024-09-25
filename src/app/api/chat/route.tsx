@@ -1,17 +1,23 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
+//import OpenAI from "openai";
+import Cerebras from "@cerebras/cerebras_cloud_sdk";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+/* const openai = new OpenAI({
+  apiKey: process.env.CEREBRAS_API_KEY,
+  baseURL: "https://api.cerebras.ai/v1",
+}); */
+
+const cerebras = new Cerebras({
+  apiKey: process.env.CEREBRAS_API_KEY,
 });
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages, provider } = await req.json();
+  const encoder = new TextEncoder();
+  const startTime = Date.now();
 
-  console.log("Received messages:", messages);
-
-  const stream = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+  const stream = await cerebras.chat.completions.create({
+    model: provider,
     messages: [
       { role: "system", content: "You are a helpful assistant." },
       ...messages, // Include the conversation history here
@@ -22,19 +28,23 @@ export async function POST(req: Request) {
     },
   });
 
-  const encoder = new TextEncoder();
   const readable = new ReadableStream({
     async start(controller) {
       let usageInfo = null;
+
       for await (const chunk of stream) {
         if (chunk.usage) {
           // This is the special chunk with usage statistics
           usageInfo = chunk.usage;
           controller.enqueue(
-            encoder.encode(`\n\nUSAGE_INFO:${JSON.stringify(usageInfo)}`)
+            encoder.encode(
+              `\n\nUSAGE_INFO:${JSON.stringify(usageInfo)}TIME:${
+                Date.now() - startTime
+              }`
+            )
           );
         } else {
-          const content = chunk.choices[0]?.delta?.content || "";
+          const content = chunk.choices?.[0]?.delta?.content || "";
           controller.enqueue(encoder.encode(content));
         }
       }

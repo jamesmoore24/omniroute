@@ -35,6 +35,7 @@ jobs:
           echo "CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}" >> .env
           echo "NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL }}" >> .env
           echo "NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL }}" >> .env
+          echo "CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}" >> .env
 
       - name: Build Next.js app
         run: npm run build
