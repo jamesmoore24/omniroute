@@ -34,5 +34,5 @@ export interface ChatWindowProps {
 export type ChatWindowType = {
   id: string;
   messages: Message[];
-  selectedProvider: string | null;
+  selectedProvider: string;
 };

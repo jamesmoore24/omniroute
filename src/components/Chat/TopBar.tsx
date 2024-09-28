@@ -5,14 +5,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Plus,
-  Menu,
-  HelpCircle,
-  Hash,
-  DollarSign,
-  PiggyBank,
-} from "lucide-react";
+import { Menu, HelpCircle, Hash, DollarSign, PiggyBank } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import SidebarContent from "@/components/Chat/ChatSideBar";
@@ -35,7 +28,6 @@ const TopBar: React.FC<TopBarProps> = ({
   totalTokens,
   totalCost,
   totalSavings,
-  onAddWindow,
   onHelp,
   onInfoClick,
   selectedProviders,
@@ -81,7 +73,6 @@ const TopBar: React.FC<TopBarProps> = ({
             </TooltipContent>
           </Tooltip>
           <div className="w-px h-6 bg-gray-300"></div>
-          {/* Cost Info */}
           <Tooltip>
             <TooltipTrigger asChild>
               <div
@@ -118,14 +109,14 @@ const TopBar: React.FC<TopBarProps> = ({
           </Tooltip>
         </div>
         {/* Add Window Button */}
-        <Button
+        {/* <Button
           type="default"
           size="small"
           onClick={onAddWindow}
           className="w-10 h-10"
         >
           <Plus className="h-4 w-4" />
-        </Button>
+        </Button> */}
         {/* Help Button */}
         <Button
           type="default"

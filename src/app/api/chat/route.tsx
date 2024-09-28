@@ -1,15 +1,5 @@
 import { NextResponse } from "next/server";
-//import OpenAI from "openai";
-import Cerebras from "@cerebras/cerebras_cloud_sdk";
-
-/* const openai = new OpenAI({
-  apiKey: process.env.CEREBRAS_API_KEY,
-  baseURL: "https://api.cerebras.ai/v1",
-}); */
-
-const cerebras = new Cerebras({
-  apiKey: process.env.CEREBRAS_API_KEY,
-});
+import { cerebras } from "@/app/api/inference";
 
 export async function POST(req: Request) {
   const { messages, provider } = await req.json();

@@ -18,7 +18,8 @@ export default function Component() {
   const { isSignedIn } = useAuth();
   const [query, setQuery] = useState("");
   const [chatWindows, setChatWindows] = useState<ChatWindowType[]>([
-    { id: "main", messages: [], selectedProvider: null },
+    { id: "main", messages: [], selectedProvider: LLM_PROVIDERS[0].name },
+    { id: "window-1", messages: [], selectedProvider: LLM_PROVIDERS[1].name },
   ]);
   const [activeWindow, setActiveWindow] = useState<string>("main");
   const [selectedProviders, setSelectedProviders] = useState<string[]>(
@@ -45,7 +46,7 @@ export default function Component() {
       const newWindow: ChatWindowType = {
         id: `window-${Date.now()}`,
         messages: [],
-        selectedProvider: null,
+        selectedProvider: LLM_PROVIDERS[0].name,
       };
       setChatWindows((prev) => [...prev, newWindow]);
     } else {
@@ -111,9 +112,10 @@ export default function Component() {
     setQuery("");
 
     // Rest of the function (API call, etc.)
-    for (const window of chatWindows) {
-      const provider =
-        selectedProviders[Math.floor(Math.random() * selectedProviders.length)];
+    const sendMessageToWindow = async (
+      window: ChatWindowType,
+      provider: string
+    ) => {
       const newAiMessage: Message = {
         id: Date.now() + 1,
         content: "",
@@ -133,18 +135,13 @@ export default function Component() {
       );
 
       const conversationHistory = [...window.messages]
-        .map((msg) => {
-          return {
-            role: msg.sender === "user" ? "user" : "assistant",
-            content: msg.content,
-          };
-        })
+        .map((msg) => ({
+          role: msg.sender === "user" ? "user" : "assistant",
+          content: msg.content,
+        }))
         .concat(newMessage);
 
       try {
-        /* console.log("Conversation history:", conversationHistory);
-        console.log(newMessage); */
-
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -165,7 +162,6 @@ export default function Component() {
           inputTokens: number;
           outputTokens: number;
           totalTokens: number;
-          //reasoningTokens: number;
         } | null = null;
 
         let time = 0;
@@ -176,19 +172,16 @@ export default function Component() {
           const chunk = decoder.decode(value);
 
           if (chunk.includes("USAGE_INFO:")) {
-            console.log(chunk);
             const [content, usageAndTime] = chunk.split("USAGE_INFO:");
             const [usageInfo, timeElapsed] = usageAndTime.split("TIME:");
             time = parseFloat(timeElapsed);
             aiResponseContent += content;
             const usage = JSON.parse(usageInfo);
 
-            // Map the values
             mappedUsage = {
               inputTokens: usage.prompt_tokens,
               outputTokens: usage.completion_tokens,
               totalTokens: usage.total_tokens,
-              //reasoningTokens: usage.completion_tokens_details.reasoning_tokens,
             };
           } else {
             aiResponseContent += chunk;
@@ -239,12 +232,9 @@ export default function Component() {
           outputTokens *
             (mostExpensiveProviderOutputCost - usedProvider.outputCostPerToken);
 
-        // Update total tokens, total cost, and total savings
         setTotalTokens((prev) => prev + inputTokens + outputTokens);
         setTotalCost((prev) => prev + totalCost);
         setTotalSavings((prev) => prev + savedCost);
-
-        console.log((((inputTokens + outputTokens) / time) * 1000).toFixed(2));
 
         setChatWindows((prev) =>
           prev.map((w) =>
@@ -293,7 +283,25 @@ export default function Component() {
           )
         );
       }
-    }
+    };
+
+    const response = await fetch("/api/route-model", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: query,
+        expensive_model: "llama3.1-8b",
+        cheap_model: "llama3.1-70b",
+      }),
+    });
+
+    console.log(await response.json());
+
+    await Promise.all(
+      chatWindows.map((window) =>
+        sendMessageToWindow(window, window.selectedProvider)
+      )
+    );
   };
 
   // Function to handle image deletion
@@ -345,28 +353,24 @@ export default function Component() {
     }
   };
 
-  const handleTopBarClick = (element: string) => {
+  const handleTopBarClick: (element: string) => void = (element) => {
+    console.log(element);
     let content = "";
-    switch (element) {
-      case "tokens":
-        content = `Total Tokens Used: ${formatNumber(totalTokens)}`;
-        break;
-      case "cost":
-        content = `Total Cost: $${totalCost.toFixed(3)}`;
-        break;
-      case "savings":
-        content = `Total Savings: $${totalSavings.toFixed(3)}`;
-        break;
-      case "addWindow":
-        content = "Add a new model comparison window.";
-        break;
-      case "help":
-        content =
-          "Model routing automatically selects the best AI model between the selected providers based on your preferences for cost, quality, and latency. This ensures optimal performance for each query.";
-        break;
-      default:
-        content = "Default Modal Content";
+    if (element === "tokens") {
+      content = `Total Tokens Used: ${formatNumber(totalTokens)}`;
+    } else if (element === "cost") {
+      content = `Total Cost: $${totalCost.toFixed(3)}`;
+    } else if (element === "savings") {
+      content = `Total Savings: $${totalSavings.toFixed(3)}`;
+    } else if (element === "addWindow") {
+      content = "Add a new model comparison window.";
+    } else if (element === "help") {
+      content =
+        "In this game, you are presented with two prompts from mystery providers. Your task is to guess which one is the better option. If you select the prompt that matches the one chosen by the router, you earn more tokens to use for additional prompts. However, if you choose incorrectly, you won't earn any tokens.";
+    } else {
+      content = "Default Modal Content";
     }
+    console.log("Setting modal content:", content);
     setModalContent(content);
     setIsModalOpen(true);
   };

@@ -1,15 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Slider } from "@/components/ui/slider";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+//import { Slider } from "@/components/ui/slider";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { Plus } from "lucide-react";
-import { Combobox as ComboboxComponent } from "@/components/ui/combobox";
-import { LLM_PROVIDERS } from "@/data/aiData";
+//import { Combobox as ComboboxComponent } from "@/components/ui/combobox";
+//import { LLM_PROVIDERS } from "@/data/aiData";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface SidebarContentProps {
@@ -20,36 +16,38 @@ interface SidebarContentProps {
 }
 
 export default function SidebarContent({
-  selectedProviders,
-  setSelectedProviders,
   showMessageStats,
   setShowMessageStats,
 }: SidebarContentProps): JSX.Element {
-  const [costPreference, setCostPreference] = useState(50);
+  /* const [costPreference, setCostPreference] = useState(50);
   const [qualityPreference, setQualityPreference] = useState(50);
   const [latencyPreference, setLatencyPreference] = useState(50);
   const [isAdjustingCost, setIsAdjustingCost] = useState(false);
   const [isAdjustingQuality, setIsAdjustingQuality] = useState(false);
   const [isAdjustingLatency, setIsAdjustingLatency] = useState(false);
-  const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
+  const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 }); */
 
-  const handleSliderPointerMove = (
+  /* const handleSliderPointerMove = (
     event: React.PointerEvent<HTMLSpanElement>
   ) => {
     setPopoverPosition({ x: event.clientX, y: event.clientY });
-  };
+  }; */
 
   return (
     <div className="flex flex-col h-full">
       <ScrollArea className="flex-grow">
         <div className="p-4">
-          <Button
-            variant="outline"
-            className="w-full justify-start mb-4 text-black"
-          >
-            <Plus className="mr-2 h-4 w-4" /> New Chat
-          </Button>
-          {[
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-start mb-4 text-black"
+              >
+                <Plus className="mr-2 h-4 w-4" /> Coming Soon
+              </Button>
+            </PopoverTrigger>
+          </Popover>
+          {/* {[
             "how to download goo...",
             "how to look at error lo...",
             "what does cohere do ...",
@@ -61,18 +59,18 @@ export default function SidebarContent({
             >
               {room}
             </Button>
-          ))}
+          ))} */}
         </div>
       </ScrollArea>
 
       <div className="p-4 border-t">
-        <div className="mt-2 pb-4">
+        {/* <div className="mt-2 pb-4">
           <ComboboxComponent
             providers={LLM_PROVIDERS}
             onSelectedValuesChange={(values) => setSelectedProviders(values)}
             initialSelectedValues={selectedProviders}
           />
-        </div>
+        </div> */}
         <div className="flex items-center mb-4">
           <Checkbox
             id="showStats"
@@ -90,7 +88,7 @@ export default function SidebarContent({
         </div>
         <div className="space-y-4 mb-4">
           <div>
-            <label className="text-sm font-medium mb-1 block text-black">
+            {/* <label className="text-sm font-medium mb-1 block text-black">
               Cost
             </label>
             <Popover open={isAdjustingCost}>
@@ -180,7 +178,7 @@ export default function SidebarContent({
               >
                 {latencyPreference}
               </PopoverContent>
-            </Popover>
+            </Popover> */}
           </div>
         </div>
       </div>

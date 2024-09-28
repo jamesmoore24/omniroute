@@ -1,14 +1,14 @@
 import React, { useRef, useEffect } from "react";
-import { Button } from "antd";
-import { X } from "lucide-react";
+//import { Button } from "antd";
+//import { X } from "lucide-react";
 import { LLMResponse } from "./LLMResponse";
 import { ChatWindowProps } from "@/types";
 import Image from "next/image";
 export default function ChatWindow({
-  id,
+  //id,
   messages,
   showMessageStats,
-  onClose,
+  //onClose,
   isMain,
 }: ChatWindowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -25,7 +25,7 @@ export default function ChatWindow({
         !isMain ? "border-l border-gray-250 h-full" : ""
       }`}
     >
-      {!isMain && (
+      {/* {!isMain && (
         <Button
           type="default"
           size="small"
@@ -34,7 +34,7 @@ export default function ChatWindow({
         >
           <X className="h-4 w-4" />
         </Button>
-      )}
+      )} */}
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, msgIndex) => (
           <div
