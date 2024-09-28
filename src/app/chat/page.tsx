@@ -285,18 +285,6 @@ export default function Component() {
       }
     };
 
-    const response = await fetch("/api/route-model", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: query,
-        expensive_model: "llama3.1-8b",
-        cheap_model: "llama3.1-70b",
-      }),
-    });
-
-    console.log(await response.json());
-
     await Promise.all(
       chatWindows.map((window) =>
         sendMessageToWindow(window, window.selectedProvider)
