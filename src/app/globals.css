@@ -145,5 +145,12 @@ br {
 
 /* Style for code blocks if not already handled */
 pre {
-  @apply bg-gray-200 text-gray-800 p-4 rounded-md overflow-auto;
+  white-space: pre-wrap; /* Allows text to wrap */
+  word-wrap: break-word; /* Breaks long words if necessary */
+  overflow: auto; /* Adds scroll if the content is too large */
+  max-width: 100%; /* Ensures the pre element does not exceed the width of its container */
+  background-color: #e5e7eb; /* Sets background to gray 200 */
+  color: #1f2937; /* Sets text color to gray 800 */
+  border-radius: 0.25rem; /* Rounds the corners */
+  padding: 0.5rem; /* Adds inside padding for the text */
 }

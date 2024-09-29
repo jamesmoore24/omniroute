@@ -11,6 +11,7 @@ export interface Message {
   showMessageStats?: boolean;
   images?: string[];
   type?: "text" | "image";
+  preferred?: boolean;
 }
 
 export interface MessageMetrics {

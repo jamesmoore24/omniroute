@@ -1,14 +1,10 @@
 import React, { useRef, useEffect } from "react";
-//import { Button } from "antd";
-//import { X } from "lucide-react";
-import { LLMResponse } from "./LLMResponse";
 import { ChatWindowProps } from "@/types";
-import Image from "next/image";
+import ChatMessageBox from "./ChatMessageBox";
+
 export default function ChatWindow({
-  //id,
   messages,
   showMessageStats,
-  //onClose,
   isMain,
 }: ChatWindowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -21,83 +17,17 @@ export default function ChatWindow({
 
   return (
     <div
-      className={`flex-1 flex flex-col min-w-[300px] h-full relative ${
+      className={`flex-1 flex flex-col h-full relative ${
         !isMain ? "border-l border-gray-250 h-full" : ""
       }`}
     >
-      {/* {!isMain && (
-        <Button
-          type="default"
-          size="small"
-          className="absolute top-2 right-2 z-10 w-8 h-8 p-0 flex items-center justify-center"
-          onClick={() => onClose(id)}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      )} */}
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, msgIndex) => (
-          <div
+          <ChatMessageBox
             key={msg.id}
-            className={`flex ${
-              msg.sender === "user" ? "justify-end" : "justify-start"
-            } ${msgIndex > 0 ? "mt-6" : ""}`}
-          >
-            <div
-              className={`flex flex-col ${
-                msg.sender === "user" ? "items-end" : "items-start"
-              } ${msg.sender === "user" ? "max-w-[80%]" : "w-full"}`}
-            >
-              {msg.type !== "image" &&
-                (msg.sender === "user" ? (
-                  <div className="p-3 rounded-lg shadow bg-orange-100 w-full">
-                    {msg.images && msg.images.length > 0 && (
-                      <div className="flex space-x-2 mb-2">
-                        {msg.images.map((imageUrl, index) => (
-                          <Image
-                            key={index}
-                            src={imageUrl}
-                            alt={`uploaded-${index}`}
-                            width={40} // Adjusted for the desired size
-                            height={40} // Adjusted for the desired size
-                            className="object-cover rounded border border-gray-300"
-                          />
-                        ))}
-                      </div>
-                    )}
-                    <p className="text-black whitespace-pre-wrap text-left">
-                      {Array.isArray(msg.content)
-                        ? msg.content.map((item, index) => (
-                            <span key={index}>
-                              {item.text}
-                              {item.image_url && (
-                                <Image
-                                  src={item.image_url.url}
-                                  alt="Content"
-                                  width={40} // Adjusted for the desired size
-                                  height={40} // Adjusted for the desired size
-                                  className="object-cover rounded border border-gray-300"
-                                />
-                              )}
-                            </span>
-                          ))
-                        : msg.content}
-                    </p>
-                  </div>
-                ) : (
-                  <LLMResponse
-                    id={msg.id}
-                    sender={msg.sender}
-                    provider={msg.provider || ""}
-                    content={msg.content}
-                    isLoading={msg.isLoading || false}
-                    providerRevealed={msg.providerRevealed || false}
-                    metrics={msg.metrics}
-                    showMessageStats={showMessageStats}
-                  />
-                ))}
-            </div>
-          </div>
+            message={msg}
+            showMessageStats={showMessageStats}
+          />
         ))}
         <div ref={scrollRef} />
       </div>

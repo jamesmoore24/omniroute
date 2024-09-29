@@ -149,3 +149,6 @@ export const LLM_PROVIDERS = [
     outputCostPerToken: 0.0000006, // $0.60 per 1M tokens
   },
 ];
+
+export const EXPENSIVE_MODEL = "llama3.1-70b";
+export const CHEAP_MODEL = "llama3.1-8b";

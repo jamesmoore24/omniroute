@@ -15,6 +15,24 @@ const ChatArea: React.FC<ChatAreaProps> = ({
 }) => {
   const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
+  const handlePreferenceToggle = (
+    window: ChatWindowType,
+    preference: string
+  ) => {
+    setChatWindows((prev) =>
+      prev.map((w) =>
+        w.id === window.id
+          ? {
+              ...w,
+              messages: w.messages.map((msg) =>
+                msg.id === preference ? { ...msg, preferred: true } : msg
+              ),
+            }
+          : w
+      )
+    );
+  };
+
   const scrollToBottom = (windowId: string) => {
     if (scrollRefs.current[windowId]) {
       scrollRefs.current[windowId]?.scrollIntoView({ behavior: "smooth" });
@@ -37,6 +55,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
             messages={window.messages}
             showMessageStats={showMessageStats}
             onClose={onCloseWindow}
+            onPreferenceToggle={handlePreferenceToggle}
             isMain={window.id === "main"}
             scrollRef={(el) =>
               (scrollRefs.current[window.id] = el as HTMLDivElement)

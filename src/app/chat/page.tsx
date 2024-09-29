@@ -13,13 +13,12 @@ import ChatArea from "@/components/Chat/ChatArea";
 import InputArea from "@/components/Chat/InputArea";
 import ModalComponent from "@/components/Chat/ModalComponent";
 import ImageUpload from "@/components/Chat/ImageUpload";
-
+import { EXPENSIVE_MODEL, CHEAP_MODEL } from "@/data/aiData";
 export default function Component() {
   const { isSignedIn } = useAuth();
   const [query, setQuery] = useState("");
   const [chatWindows, setChatWindows] = useState<ChatWindowType[]>([
     { id: "main", messages: [], selectedProvider: LLM_PROVIDERS[0].name },
-    { id: "window-1", messages: [], selectedProvider: LLM_PROVIDERS[1].name },
   ]);
   const [activeWindow, setActiveWindow] = useState<string>("main");
   const [selectedProviders, setSelectedProviders] = useState<string[]>(
@@ -285,10 +284,33 @@ export default function Component() {
       }
     };
 
+    const response = await fetch("/api/route-model", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: newMessage.content,
+        expensive_model: EXPENSIVE_MODEL,
+        cheap_model: CHEAP_MODEL,
+      }),
+    });
+
+    const result = await response.json();
+    const winrate = result.winrate;
+    console.log("Winrate:", winrate);
+    let model = "";
+
+    if (winrate > 0.5) {
+      // Send to the expensive model
+      model = EXPENSIVE_MODEL;
+    } else {
+      // Send to the cheaper model
+      model = CHEAP_MODEL;
+    }
+
     await Promise.all(
-      chatWindows.map((window) =>
-        sendMessageToWindow(window, window.selectedProvider)
-      )
+      chatWindows.map((window) => sendMessageToWindow(window, model))
     );
   };
 
@@ -342,7 +364,6 @@ export default function Component() {
   };
 
   const handleTopBarClick: (element: string) => void = (element) => {
-    console.log(element);
     let content = "";
     if (element === "tokens") {
       content = `Total Tokens Used: ${formatNumber(totalTokens)}`;
@@ -354,8 +375,7 @@ export default function Component() {
       content = "Add a new model comparison window.";
     } else if (element === "help") {
       content =
-        "In this game, you are presented with two prompts from mystery providers. Your task is to guess which one is the better option. If you select the prompt that matches the one chosen by the router, you earn more tokens to use for additional prompts. However, if you choose incorrectly, you won't earn any tokens.";
-    } else {
+        "Free inference provided by Cerebras. Please provide your preference between each model's response quality after each prompt";
       content = "Default Modal Content";
     }
     console.log("Setting modal content:", content);
