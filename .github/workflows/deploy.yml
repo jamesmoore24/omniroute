@@ -56,6 +56,7 @@ jobs:
           cp .env build_temp/
           cp -R node_modules build_temp/
           cp -R router build_temp/
+          cp requirements.txt build_temp/
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
@@ -72,6 +73,12 @@ jobs:
           ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=10 root@omniroute.ai '
             set -e
             cd /var/www/omniroute
+            echo "Installing Python dependencies..."
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install -r requirements.txt
+            echo "Starting ModelRouter PM2 process..."
+            pm2 delete model-router; pm2 start python3 router/app.py --name "model-router"
             echo "Restarting PM2 process..."
             pm2 delete omniroute; pm2 start npm --name "omniroute" -- start
             echo "Reloading Nginx..."

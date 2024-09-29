@@ -7,7 +7,7 @@ import openai
 from safetensors.torch import load_file
 
 OPENAI_CLIENT = openai.OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
+    api_key="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"
 )
 
 app = FastAPI()
