@@ -124,7 +124,7 @@ const InputArea: React.FC<InputAreaProps> = ({
           onSend();
         }}
       >
-        <Button
+        {/* <Button
           type="default"
           icon={<UploadOutlined />}
           onClick={handleUploadClick}
@@ -132,7 +132,7 @@ const InputArea: React.FC<InputAreaProps> = ({
           className="mr-2 resize-none border border-gray-300 bg-white text-gray-700 focus:border-gray-400 focus:ring-gray-400 hover:bg-gray-200 transition-colors duration-200"
         >
           {isUploading ? <LoadingOutlined spin /> : ""}
-        </Button>
+        </Button> */}
         <input
           type="file"
           ref={fileInputRef}
