@@ -18,26 +18,9 @@ jobs:
         with:
           node-version: "18"
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-
-      - name: Set up Python environment
-        run: |
-          python -m venv venv
-          pip install --upgrade pip
-
       - name: Install dependencies
         run: |
           npm ci
-          source venv/bin/activate && echo "Virtual environment activated"
-          pip install -r requirements.txt
-
-      - name: Peek into venv
-        run: |
-          ls -la venv/
-          ls -la venv/lib/python3.10/site-packages/
 
       - name: Create .env file
         run: |
@@ -72,8 +55,6 @@ jobs:
           cp next.config.mjs build_temp/
           cp .env build_temp/
           cp -R node_modules build_temp/
-          cp -R venv build_temp/
-          cp -R router build_temp/router/
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
@@ -92,9 +73,6 @@ jobs:
             cd /var/www/omniroute
             echo "Restarting PM2 process..."
             pm2 delete omniroute; pm2 start npm --name "omniroute" -- start
-            echo "Starting FastAPI server..."
-            source venv/bin/activate
-            pm2 delete fastapi-app; pm2 start uvicorn --name "fastapi-app" -- app:app --host ${{ secrets.ROUTING_SERVER_IP }} --port ${{ secrets.ROUTING_SERVER_PORT }}
             echo "Reloading Nginx..."
             sudo systemctl reload nginx
             echo "Post-deployment commands completed successfully"
