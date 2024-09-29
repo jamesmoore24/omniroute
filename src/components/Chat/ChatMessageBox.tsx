@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Message } from "@/types"; // Adjust the import based on your project structure
 import { LLMResponse } from "./LLMResponse";
 import Image from "next/image";

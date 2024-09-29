@@ -155,7 +155,7 @@ const InputArea: React.FC<InputAreaProps> = ({
           icon={<SendOutlined />}
           onClick={onSend}
           disabled={!isSignedIn && uploadedImages.length === 0}
-          className="bg-orange-500 hover:bg-orange-600 border-none"
+          className="bg-orange-500 hover:bg-orange-600 border-none texts-base"
         >
           Send
         </Button>

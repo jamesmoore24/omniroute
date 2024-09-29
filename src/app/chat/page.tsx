@@ -364,10 +364,8 @@ export default function Component() {
       content = "Add a new model comparison window.";
     } else if (element === "help") {
       content =
-        "Free inference provided by Cerebras. Please provide your preference between each model's response quality after each prompt";
-      content = "Default Modal Content";
+        "Binary routing model from RouteLLM. Free inference for llama3.1-8b and llama3.1-70b provided by Cerebras.";
     }
-    console.log("Setting modal content:", content);
     setModalContent(content);
     setIsModalOpen(true);
   };
