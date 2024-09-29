@@ -5,9 +5,6 @@ import torch
 import os
 import openai
 from safetensors.torch import load_file
-from dotenv import load_dotenv
-
-load_dotenv()
 
 OPENAI_CLIENT = openai.OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
@@ -161,4 +158,4 @@ def route_model(request: RouteRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host=os.getenv("ROUTING_SERVER_IP"), port=int(os.getenv("ROUTING_SERVER_PORT")))
+    uvicorn.run(app, host='0.0.0.0', port=8000)
