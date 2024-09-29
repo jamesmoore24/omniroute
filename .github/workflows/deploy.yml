@@ -26,13 +26,18 @@ jobs:
       - name: Set up Python environment
         run: |
           python -m venv venv
-          source venv/bin/activate
           pip install --upgrade pip
 
       - name: Install dependencies
         run: |
           npm ci
+          source venv/bin/activate 
           pip install -r requirements.txt
+
+      - name: Peek into venv
+        run: |
+          ls -la venv/
+          ls -la venv/bin/python3.10/site-packages/
 
       - name: Create .env file
         run: |
@@ -89,7 +94,7 @@ jobs:
             pm2 delete omniroute; pm2 start npm --name "omniroute" -- start
             echo "Starting FastAPI server..."
             source venv/bin/activate
-            pm2 delete fastapi-app; pm2 start uvicorn --name "fastapi-app" -- app:app --host ${{ secrets.MODEL_ROUTING_IP }} --port ${{ secrets.MODEL_ROUTING_PORT }}
+            pm2 delete fastapi-app; pm2 start uvicorn --name "fastapi-app" -- app:app --host ${{ secrets.ROUTING_SERVER_IP }} --port ${{ secrets.ROUTING_SERVER_PORT }}
             echo "Reloading Nginx..."
             sudo systemctl reload nginx
             echo "Post-deployment commands completed successfully"
