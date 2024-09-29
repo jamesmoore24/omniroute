@@ -145,7 +145,7 @@ const InputArea: React.FC<InputAreaProps> = ({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={onKeyDown}
-          className="flex-1 mr-2 resize-none focus:border-orange-500 focus:ring-orange-500 hover:border-orange-500 hover:ring-orange-500"
+          className="flex-1 mr-2 resize-none focus:border-orange-500 focus:ring-orange-500 hover:border-orange-500 hover:ring-orange-500 text-base"
           disabled={!isSignedIn}
           autoSize={{ minRows: 1, maxRows: 6 }}
         />
