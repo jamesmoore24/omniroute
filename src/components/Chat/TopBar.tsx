@@ -56,57 +56,32 @@ const TopBar: React.FC<TopBarProps> = ({
       <div className="flex items-center space-x-4">
         <div className="flex items-center h-10 bg-gray-100 rounded-md px-3 space-x-2">
           {/* Token Info */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                className="flex items-center space-x-1 cursor-pointer"
-                onClick={() => onInfoClick("tokens")}
-              >
-                <Hash className="h-5 w-5 text-blue-500" />
-                <span className="text-sm font-medium">
-                  {formatNumber(totalTokens)}
-                </span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Total tokens used</p>
-            </TooltipContent>
-          </Tooltip>
+          <div
+            className="flex items-center space-x-1 cursor-pointer"
+            onClick={() => onInfoClick("tokens")}
+          >
+            <Hash className="h-5 w-5 text-blue-500" />
+            <span className="text-sm font-medium">
+              {formatNumber(totalTokens)}
+            </span>
+          </div>
           <div className="w-px h-6 bg-gray-300"></div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                className="flex items-center space-x-1 cursor-pointer"
-                onClick={() => onInfoClick("cost")}
-              >
-                <DollarSign className="h-5 w-5 text-red-500" />
-                <span className="text-sm font-medium">
-                  ${totalCost.toFixed(3)}
-                </span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Total cost</p>
-            </TooltipContent>
-          </Tooltip>
+          <div
+            className="flex items-center space-x-1 cursor-pointer"
+            onClick={() => onInfoClick("cost")}
+          >
+            <DollarSign className="h-5 w-5 text-red-500" />
+            <span className="text-sm font-medium">Free</span>
+          </div>
           <div className="w-px h-6 bg-gray-300"></div>
           {/* Savings Info */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                className="flex items-center space-x-1 cursor-pointer"
-                onClick={() => onInfoClick("savings")}
-              >
-                <PiggyBank className="h-5 w-5 text-green-500" />
-                <span className="text-sm font-medium">
-                  ${totalSavings.toFixed(3)}
-                </span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Total savings</p>
-            </TooltipContent>
-          </Tooltip>
+          <div
+            className="flex items-center space-x-1 cursor-pointer"
+            onClick={() => onInfoClick("savings")}
+          >
+            <PiggyBank className="h-5 w-5 text-green-500" />
+            <span className="text-sm font-medium">Free</span>
+          </div>
         </div>
         {/* Add Window Button */}
         {/* <Button
