@@ -12,12 +12,6 @@ const ChatMessageBox: React.FC<ChatMessageBoxProps> = ({
   message,
   showMessageStats,
 }) => {
-  const [isSelected, setIsSelected] = useState(false);
-
-  const handleClick = () => {
-    setIsSelected((prev) => !prev);
-  };
-
   return (
     <div
       className={`flex ${
@@ -28,14 +22,11 @@ const ChatMessageBox: React.FC<ChatMessageBoxProps> = ({
         className={`flex flex-col ${
           message.sender === "user" ? "items-end" : "items-start"
         } `}
-        onClick={handleClick}
       >
         {message.type !== "image" ? (
           message.sender === "user" ? (
             <div
-              className={`p-3 rounded-lg ${
-                isSelected ? "bg-green-100" : "bg-orange-100"
-              } transition-transform duration-300 hover:scale-110`}
+              className={`p-3 rounded-lg bg-orange-100 transition-transform duration-300`}
             >
               {message.images && message.images.length > 0 && (
                 <div className="flex space-x-2 mb-2">
