@@ -1,10 +1,5 @@
 import React from "react";
 import { Button } from "antd";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Menu, HelpCircle, Hash, DollarSign, PiggyBank } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -26,8 +21,6 @@ interface TopBarProps {
 
 const TopBar: React.FC<TopBarProps> = ({
   totalTokens,
-  totalCost,
-  totalSavings,
   onHelp,
   onInfoClick,
   selectedProviders,
