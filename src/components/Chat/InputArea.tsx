@@ -1,10 +1,9 @@
-import React, { useState, useRef } from "react";
-import { Button, message } from "antd";
+import React, { useState } from "react";
+import { Button } from "antd";
 import {
   SendOutlined,
   CloseOutlined,
   LoadingOutlined,
-  UploadOutlined,
 } from "@ant-design/icons";
 import TextArea from "antd/lib/input/TextArea";
 import Image from "next/image";
@@ -28,11 +27,10 @@ const InputArea: React.FC<InputAreaProps> = ({
   isSignedIn,
   uploadedImages,
   onDeleteImage,
-  onUploadSuccess,
 }) => {
   const [deletingImages, setDeletingImages] = useState<Set<string>>(new Set());
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  //const [isUploading, setIsUploading] = useState(false);
+  //const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDeleteImage = async (image: {
     url: string;
@@ -50,11 +48,11 @@ const InputArea: React.FC<InputAreaProps> = ({
     }
   };
 
-  const handleUploadClick = () => {
+  /* const handleUploadClick = () => {
     fileInputRef.current?.click();
-  };
+  }; */
 
-  const handleFileChange = async (
+  /* const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
@@ -84,7 +82,7 @@ const InputArea: React.FC<InputAreaProps> = ({
         setIsUploading(false);
       }
     }
-  };
+  }; */
 
   return (
     <div className="p-4 border-t">
@@ -132,14 +130,14 @@ const InputArea: React.FC<InputAreaProps> = ({
           className="mr-2 resize-none border border-gray-300 bg-white text-gray-700 focus:border-gray-400 focus:ring-gray-400 hover:bg-gray-200 transition-colors duration-200"
         >
           {isUploading ? <LoadingOutlined spin /> : ""}
-        </Button> */}
+        </Button>
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
           accept="image/*"
           style={{ display: "none" }}
-        />
+        /> */}
         <TextArea
           placeholder={isSignedIn ? "Start a message..." : "Sign in to chat"}
           value={query}
