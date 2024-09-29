@@ -22,7 +22,7 @@ export default function ChatWindow({
       }`}
     >
       <div className="flex-1 overflow-y-auto p-4">
-        {messages.map((msg, msgIndex) => (
+        {messages.map((msg) => (
           <ChatMessageBox
             key={msg.id}
             message={msg}

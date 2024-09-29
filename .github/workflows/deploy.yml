@@ -49,6 +49,8 @@ jobs:
           echo "NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL }}" >> .env
           echo "NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL }}" >> .env
           echo "CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}" >> .env
+          echo "ROUTING_SERVER_IP=${{ secrets.ROUTING_SERVER_IP }}" >> .env
+          echo "ROUTING_SERVER_PORT=${{ secrets.ROUTING_SERVER_PORT }}" >> .env
 
       - name: Build Next.js app
         run: npm run build
@@ -87,7 +89,7 @@ jobs:
             pm2 delete omniroute; pm2 start npm --name "omniroute" -- start
             echo "Starting FastAPI server..."
             source venv/bin/activate
-            pm2 delete fastapi-app; pm2 start uvicorn --name "fastapi-app" -- app:app --host 0.0.0.0 --port 8000
+            pm2 delete fastapi-app; pm2 start uvicorn --name "fastapi-app" -- app:app --host ${{ secrets.MODEL_ROUTING_IP }} --port ${{ secrets.MODEL_ROUTING_PORT }}
             echo "Reloading Nginx..."
             sudo systemctl reload nginx
             echo "Post-deployment commands completed successfully"

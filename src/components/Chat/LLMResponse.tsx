@@ -41,7 +41,7 @@ export const LLMResponse: React.FC<Message> = ({
   }, [content, metrics]);
 
   return (
-    <div className="p-4 rounded-lg shadow bg-gray-50 w-full">
+    <div className="p-4 rounded-lg shadow bg-gray-50 w-full flex-1">
       {provider && (
         <div className="text-xs text-gray-500 mb-2">
           {providerRevealed ? provider : "Loading..."}

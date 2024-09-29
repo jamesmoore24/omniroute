@@ -94,12 +94,6 @@ const ChatMessageBox: React.FC<ChatMessageBoxProps> = ({
             />
           </div>
         )}
-        {isSelected && message.metrics && (
-          <div className="text-xs text-gray-500 mt-1">
-            Tokens: {message.metrics.inputTokens + message.metrics.outputTokens}{" "}
-            | Cost: ${message.metrics.cost}
-          </div>
-        )}
       </div>
     </div>
   );

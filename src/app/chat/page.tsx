@@ -284,7 +284,7 @@ export default function Component() {
       }
     };
 
-    const response = await fetch("/api/route-model", {
+    const provider = await fetch("/api/route-model", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -296,21 +296,10 @@ export default function Component() {
       }),
     });
 
-    const result = await response.json();
-    const winrate = result.winrate;
-    console.log("Winrate:", winrate);
-    let model = "";
-
-    if (winrate > 0.5) {
-      // Send to the expensive model
-      model = EXPENSIVE_MODEL;
-    } else {
-      // Send to the cheaper model
-      model = CHEAP_MODEL;
-    }
+    const { routed_model } = await provider.json();
 
     await Promise.all(
-      chatWindows.map((window) => sendMessageToWindow(window, model))
+      chatWindows.map((window) => sendMessageToWindow(window, routed_model))
     );
   };
 
@@ -413,6 +402,7 @@ export default function Component() {
               onToggleSidebar={toggleSidebar}
             />
             <ChatArea
+              setChatWindows={setChatWindows}
               chatWindows={chatWindows}
               showMessageStats={showMessageStats}
               onCloseWindow={handleCloseWindow}

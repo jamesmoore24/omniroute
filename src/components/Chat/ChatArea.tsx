@@ -3,6 +3,7 @@ import ChatWindow from "@/components/Chat/ChatWindow";
 import { ChatWindowType } from "@/types/chat";
 
 interface ChatAreaProps {
+  setChatWindows: React.Dispatch<React.SetStateAction<ChatWindowType[]>>;
   chatWindows: ChatWindowType[];
   showMessageStats: boolean;
   onCloseWindow: (id: string) => void;
@@ -14,24 +15,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({
   onCloseWindow,
 }) => {
   const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-
-  const handlePreferenceToggle = (
-    window: ChatWindowType,
-    preference: string
-  ) => {
-    setChatWindows((prev) =>
-      prev.map((w) =>
-        w.id === window.id
-          ? {
-              ...w,
-              messages: w.messages.map((msg) =>
-                msg.id === preference ? { ...msg, preferred: true } : msg
-              ),
-            }
-          : w
-      )
-    );
-  };
 
   const scrollToBottom = (windowId: string) => {
     if (scrollRefs.current[windowId]) {
@@ -55,7 +38,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({
             messages={window.messages}
             showMessageStats={showMessageStats}
             onClose={onCloseWindow}
-            onPreferenceToggle={handlePreferenceToggle}
             isMain={window.id === "main"}
             scrollRef={(el) =>
               (scrollRefs.current[window.id] = el as HTMLDivElement)
