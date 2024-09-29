@@ -31,13 +31,13 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          source venv/bin/activate 
+          source venv/bin/activate && echo "Virtual environment activated"
           pip install -r requirements.txt
 
       - name: Peek into venv
         run: |
           ls -la venv/
-          ls -la venv/bin/python3.10/site-packages/
+          ls -la venv/lib/python3.10/site-packages/
 
       - name: Create .env file
         run: |
