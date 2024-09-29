@@ -2,3 +2,5 @@ fastapi
 pydantic
 torch
 uvicorn
+openai
+safetensors

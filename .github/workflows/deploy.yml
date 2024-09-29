@@ -55,6 +55,7 @@ jobs:
           cp next.config.mjs build_temp/
           cp .env build_temp/
           cp -R node_modules build_temp/
+          cp -R router build_temp/
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
