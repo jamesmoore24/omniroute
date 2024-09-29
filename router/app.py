@@ -141,7 +141,7 @@ class MFModel(torch.nn.Module):
     
 # Load the model
 model = MFModel(dim=128, num_models=64, text_dim=1536, num_classes=1, use_proj=True)
-pretrained_weights_path = 'model.safetensors'
+pretrained_weights_path = 'router/model.safetensors'
 weights = load_file(pretrained_weights_path) 
 model.load_state_dict(weights)
 model = model.eval().to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
