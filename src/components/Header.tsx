@@ -30,9 +30,14 @@ export const Header: React.FC = () => {
               Chat
             </Button>
           </Link>
-          <Button variant="ghost" className="text-black hover:text-orange-500">
-            Docs
-          </Button>
+          <Link href="/careers">
+            <Button
+              variant="ghost"
+              className="text-black hover:text-orange-500"
+            >
+              Careers
+            </Button>
+          </Link>
           <SignedOut>
             <SignInButton mode="modal">
               <Button
