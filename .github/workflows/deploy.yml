@@ -78,9 +78,9 @@ jobs:
             source venv/bin/activate
             pip install -r requirements.txt
             echo "Starting ModelRouter PM2 process..."
-            pm2 delete model-router; pm2 start python3 router/app.py --name "model-router"
+            pm2 restart model-router || pm2 start python3 router/app.py --name "model-router"
             echo "Restarting PM2 process..."
-            pm2 delete omniroute; pm2 start npm --name "omniroute" -- start
+            pm2 restart omniroute || pm2 start npm --name "omniroute" -- start
             echo "Reloading Nginx..."
             sudo systemctl reload nginx
             echo "Post-deployment commands completed successfully"
