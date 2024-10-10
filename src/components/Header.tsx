@@ -1,19 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import {
-  UserButton,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  useSignIn,
-} from "@clerk/nextjs";
-
 export const Header: React.FC = () => {
-  const { isLoaded } = useSignIn();
-  if (!isLoaded) {
-    return null;
-  }
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="flex justify-between items-center h-16 px-5">
@@ -38,19 +26,9 @@ export const Header: React.FC = () => {
               Careers
             </Button>
           </Link>
-          <SignedOut>
-            <SignInButton mode="modal">
-              <Button
-                variant="ghost"
-                className="text-black hover:text-orange-500"
-              >
-                Sign In
-              </Button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
+          <Button variant="ghost" className="text-black hover:text-orange-500">
+            Sign In
+          </Button>
         </nav>
       </div>
     </header>

@@ -7,7 +7,6 @@ import {
 } from "@ant-design/icons";
 import TextArea from "antd/lib/input/TextArea";
 import Image from "next/image";
-import { SignInButton } from "@clerk/nextjs";
 
 interface InputAreaProps {
   query: string;
@@ -133,40 +132,32 @@ const InputArea: React.FC<InputAreaProps> = ({
           accept="image/*"
           style={{ display: "none" }}
         /> */}
-      {isSignedIn ? (
-        <form
-          className="flex items-center"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSend();
-          }}
+      <form
+        className="flex items-center"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSend();
+        }}
+      >
+        <TextArea
+          placeholder="Start a message..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={onKeyDown}
+          className="flex-1 mr-2 resize-none focus:border-orange-500 focus:ring-orange-500 hover:border-orange-500 hover:ring-orange-500 text-base"
+          disabled={!isSignedIn}
+          autoSize={{ minRows: 1, maxRows: 6 }}
+        />
+        <Button
+          type="primary"
+          icon={<SendOutlined />}
+          onClick={onSend}
+          disabled={!isSignedIn && uploadedImages.length === 0}
+          className="bg-orange-500 hover:bg-orange-600 border-none texts-base"
         >
-          <TextArea
-            placeholder="Start a message..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={onKeyDown}
-            className="flex-1 mr-2 resize-none focus:border-orange-500 focus:ring-orange-500 hover:border-orange-500 hover:ring-orange-500 text-base"
-            disabled={!isSignedIn}
-            autoSize={{ minRows: 1, maxRows: 6 }}
-          />
-          <Button
-            type="primary"
-            icon={<SendOutlined />}
-            onClick={onSend}
-            disabled={!isSignedIn && uploadedImages.length === 0}
-            className="bg-orange-500 hover:bg-orange-600 border-none texts-base"
-          >
-            Send
-          </Button>
-        </form>
-      ) : (
-        <SignInButton mode="modal">
-          <Button className="text-black hover:text-orange-500 mx-auto block">
-            Sign in to chat
-          </Button>
-        </SignInButton>
-      )}
+          Send
+        </Button>
+      </form>
     </div>
   );
 };

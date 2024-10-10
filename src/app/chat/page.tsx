@@ -6,7 +6,6 @@ import { Header } from "@/components/Header";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LLM_PROVIDERS } from "@/data/aiData";
 import { formatNumber } from "@/lib/utils";
-import { useAuth } from "@clerk/nextjs";
 import { ChatWindowType, Message } from "@/types/chat";
 import TopBar from "@/components/Chat/TopBar";
 import ChatArea from "@/components/Chat/ChatArea";
@@ -14,8 +13,8 @@ import InputArea from "@/components/Chat/InputArea";
 import ModalComponent from "@/components/Chat/ModalComponent";
 import ImageUpload from "@/components/Chat/ImageUpload";
 import { EXPENSIVE_MODEL, CHEAP_MODEL } from "@/data/aiData";
+
 export default function Component() {
-  const { isSignedIn } = useAuth();
   const [query, setQuery] = useState("");
   const [chatWindows, setChatWindows] = useState<ChatWindowType[]>([
     { id: "main", messages: [], selectedProvider: LLM_PROVIDERS[0].name },
@@ -61,7 +60,7 @@ export default function Component() {
   };
 
   const handleSendMessage = async () => {
-    if (!isSignedIn || (!query.trim() && composedImages.length === 0)) return;
+    if (!query.trim() && composedImages.length === 0) return;
 
     //TODO: Make this dependent on the provider
 
@@ -418,7 +417,7 @@ export default function Component() {
                 setQuery={setQuery}
                 onSend={handleSendMessage}
                 onKeyDown={handleKeyDown}
-                isSignedIn={isSignedIn ?? false}
+                isSignedIn={true}
                 uploadedImages={composedImages}
                 onDeleteImage={handleDeleteImage}
                 onUploadSuccess={(url, deleteHash) =>

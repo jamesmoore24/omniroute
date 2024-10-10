@@ -75,8 +75,7 @@ jobs:
             cd /var/www/omniroute
             echo "Installing Python dependencies..."
             python3 -m venv venv
-            source venv/bin/activate
-            pip install -r requirements.txt
+            source venv/bin/activate && pip install -r requirements.txt
             echo "Starting ModelRouter PM2 process..."
             pm2 restart model-router || pm2 start python3 router/app.py --name "model-router"
             echo "Restarting PM2 process..."
