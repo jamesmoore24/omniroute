@@ -5,9 +5,12 @@ import torch
 import os
 import openai
 from safetensors.torch import load_file
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
 
 OPENAI_CLIENT = openai.OpenAI(
-    api_key="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"
+    api_key=os.getenv("OPENAI_API_KEY")
 )
 
 app = FastAPI()
@@ -148,6 +151,7 @@ model = model.eval().to(torch.device("cuda" if torch.cuda.is_available() else "c
 
 @app.post("/route")
 def route_model(request: RouteRequest):
+    print(request)
     try:
         winrate = model.pred_win_rate(MODEL_IDS['gpt-4-1106-preview'], MODEL_IDS['mixtral-8x7b-instruct-v0.1'], request.prompt)
         if winrate > request.threshold:
@@ -158,4 +162,4 @@ def route_model(request: RouteRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host=os.getenv("ROUTING_SERVER_IP"), port=int(os.getenv("ROUTING_SERVER_PORT")))
