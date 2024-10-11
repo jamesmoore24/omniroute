@@ -5,5 +5,4 @@ torch
 uvicorn
 openai
 safetensors
-dotenv
 os

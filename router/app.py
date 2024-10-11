@@ -5,9 +5,6 @@ import torch
 import os
 import openai
 from safetensors.torch import load_file
-from dotenv import load_dotenv
-
-load_dotenv(override=True)
 
 OPENAI_CLIENT = openai.OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")

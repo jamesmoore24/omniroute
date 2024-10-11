@@ -13,10 +13,10 @@ const jobs: Job[] = [
     requirements: ["Experience with Figma", "Experience with React"],
     bonuses: ["Bonus for working with AI", "Bonus for working with AI"],
     shortDescription: "UI/UX Designer",
-    commitment: "Part-time",
+    commitment: "Contract",
     compensation: "$500",
     description:
-      "We are on the lookout for a talented UI/UX Designer to join our team. Our platforms can potentially attract millions of visitors each year, and we aim to provide them with a flawless and engaging experience. As a UI/UX Designer, you will play a critical role in both designing and implementing user-centric solutions that enhance functionality and drive conversions.",
+      "We are on the lookout for a talented UI/UX Designer to join our team. Our platforms can potentially attract millions of visitors and business owners alike, and we aim to provide them with a flawless and engaging experience. As a UI/UX Designer, you will play a critical role in both designing and implementing user-centric solutions that enhance functionality and drive conversions.",
     location: "Remote",
   },
 ];
