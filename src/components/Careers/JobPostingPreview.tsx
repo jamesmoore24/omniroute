@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Job } from "@/types";
-import { MapPin, DollarSign } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 const JobPostingPreview = ({ job }: { job: Job }) => {
   return (
