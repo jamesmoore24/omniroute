@@ -133,11 +133,9 @@ const JobDetailPage = ({ params }: { params: { jobId: string } }) => {
                   jame.moore24@gmail.com
                 </a>
               </b>{" "}
-              with the subject line <b>"Omniroute {job.title} Application"</b>{" "}
-              and we'll follow up if you're a good fit!
-              <br />
-              <br />
-              Looking forward to seeing your application!
+              with the subject line{" "}
+              <b>&quot;Omniroute {job.title} Application&quot;</b> and
+              we&apos;ll follow up if you&apos;re a good fit!
             </p>
           </div>
         </div>
