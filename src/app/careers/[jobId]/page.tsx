@@ -1,6 +1,9 @@
 // src/app/careers/[job_id].tsx
 import React from "react";
 import { Job } from "@/types"; // Adjust the import based on your types location
+import { TooltipProvider } from "@/components/ui/tooltip"; // Adjust the import based on your structure
+import { Header } from "@/components/Header"; // Adjust the import based on your structure
+import Link from "next/link"; // Import Link from Next.js
 
 // Sample job data (replace this with your actual data fetching logic)
 const jobs: Job[] = [
@@ -8,9 +11,10 @@ const jobs: Job[] = [
     id: 1,
     title: "UI/UX Designer",
     description:
-      "As a UI/UX Designer, you will design user-friendly interfaces.",
+      "As a UI/UX Designer, you will design user-friendly interfaces. You will work with our product team to understand user needs and design interfaces that are both functional and aesthetically pleasing. You will be responsible for creating wireframes, mockups, and prototypes.",
     shortDescription: "UI/UX Designer",
-    compensation: "$70,000 - $90,000",
+    compensation: "Based on skills, experience and funding.",
+    commitment: "Part-time",
     location: "Remote",
     responsibilities: ["Design user interfaces", "Conduct user research"],
     requirements: ["Experience with Figma", "Strong portfolio"],
@@ -30,36 +34,58 @@ const JobDetailPage = ({ params }: { params: { jobId: string } }) => {
   }
 
   return (
-    <div className="job-detail">
-      <h1 className="text-2xl font-bold">{job.title}</h1>
-      <p className="text-gray-600">{job.description}</p>
-      <p className="text-gray-700 font-bold">{job.compensation}</p>
-      <p className="text-gray-500">{job.location}</p>
-      <div className="mt-2">
-        <h4 className="font-medium text-gray-700">Responsibilities:</h4>
-        <ul className="list-disc list-inside text-gray-600">
-          {job.responsibilities.map((responsibility) => (
-            <li key={responsibility}>{responsibility}</li>
-          ))}
-        </ul>
+    <TooltipProvider>
+      <div className="flex flex-col h-screen bg-gray-100 text-black">
+        <Header />
+        <div className="flex-1 p-6 overflow-auto">
+          <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
+            <h1 className="text-3xl font-bold mb-4">{job.title}</h1>
+            <p className="text-gray-700 mb-2">{job.shortDescription}</p>
+            <p className="text-lg font-semibold text-gray-800 mb-2">
+              Compensation:{" "}
+              <span className="text-green-600">{job.compensation}</span>
+            </p>
+            <p className="text-lg font-semibold text-gray-800 mb-2">
+              Commitment:{" "}
+              <span className="text-blue-600">{job.commitment}</span>
+            </p>
+            <p className="text-lg font-semibold text-gray-800 mb-2">
+              Location: <span className="text-purple-600">{job.location}</span>
+            </p>
+            <h2 className="text-2xl font-semibold mt-6 mb-2">
+              Job Description
+            </h2>
+            <p className="text-gray-600 mb-4">{job.description}</p>
+            <h2 className="text-2xl font-semibold mt-6 mb-2">
+              Responsibilities
+            </h2>
+            <ul className="list-disc list-inside mb-4">
+              {job.responsibilities.map((responsibility, index) => (
+                <li key={index} className="text-gray-600">
+                  {responsibility}
+                </li>
+              ))}
+            </ul>
+            <h2 className="text-2xl font-semibold mt-6 mb-2">Requirements</h2>
+            <ul className="list-disc list-inside mb-4">
+              {job.requirements.map((requirement, index) => (
+                <li key={index} className="text-gray-600">
+                  {requirement}
+                </li>
+              ))}
+            </ul>
+            <h2 className="text-2xl font-semibold mt-6 mb-2">Bonuses</h2>
+            <ul className="list-disc list-inside mb-4">
+              {job.bonuses.map((bonus, index) => (
+                <li key={index} className="text-gray-600">
+                  {bonus}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
-      <div className="mt-2">
-        <h4 className="font-medium text-gray-700">Requirements:</h4>
-        <ul className="list-disc list-inside text-gray-600">
-          {job.requirements.map((requirement) => (
-            <li key={requirement}>{requirement}</li>
-          ))}
-        </ul>
-      </div>
-      <div className="mt-2">
-        <h4 className="font-medium text-gray-700">Bonuses:</h4>
-        <ul className="list-disc list-inside text-gray-600">
-          {job.bonuses.map((bonus) => (
-            <li key={bonus}>{bonus}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    </TooltipProvider>
   );
 };
 

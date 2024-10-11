@@ -12,6 +12,7 @@ const jobs: Job[] = [
     requirements: ["Experience with Figma", "Experience with React"],
     bonuses: ["Bonus for working with AI", "Bonus for working with AI"],
     shortDescription: "UI/UX Designer",
+    commitment: "Part-time",
     compensation:
       "Compensation dependent on experience, skills, availability and funding.",
     description:
