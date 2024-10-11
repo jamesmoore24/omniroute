@@ -18,7 +18,7 @@ const jobs: Job[] = [
     aboutUs:
       "Currently, people are stuck using multiple interfaces to access different AI models, often paying upwards of $20/month for each premium platform (ChatGPT Plus, Gemini Pro, etc). With Omniroute, we envision a future where anyone can fully utilize the benefits of every model provider through a single interface. We do this by routing requests to the best model for the task at hand. We are currently a pre-seed, stealth startup backed by MIT Sandbox looking to raise our seed round in the coming months.",
     requirements: [
-      "Pursuing a bachelor's degree in UI/UX Design, Computer Science, or a related field",
+      "Pursuing a bachelor's degree in Marketing, Business, Graphic Design, or a related design-oriented field",
       "Strong understanding of design principles, human-centered design, and user experience design",
       "Excellent written and verbal communication skills",
       "Experience with front-end development (HTML, CSS, JavaScript) is a plus",
