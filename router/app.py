@@ -7,7 +7,7 @@ import openai
 from safetensors.torch import load_file
 
 OPENAI_CLIENT = openai.OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
+    api_key="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"
 )
 
 app = FastAPI()
@@ -159,4 +159,4 @@ def route_model(request: RouteRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host=os.getenv("ROUTING_SERVER_IP"), port=int(os.getenv("ROUTING_SERVER_PORT")))
+    uvicorn.run(app, host="0.0.0.0", port=8000)
