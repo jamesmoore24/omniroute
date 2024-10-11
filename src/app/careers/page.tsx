@@ -13,8 +13,7 @@ const jobs: Job[] = [
     bonuses: ["Bonus for working with AI", "Bonus for working with AI"],
     shortDescription: "UI/UX Designer",
     commitment: "Part-time",
-    compensation:
-      "Compensation dependent on experience, skills, availability and funding.",
+    compensation: "$20/hour",
     description:
       "We are on the lookout for a talented UI/UX Designer to join our team. Our platforms can potentially attract millions of visitors each year, and we aim to provide them with a flawless and engaging experience. As a UI/UX Designer, you will play a critical role in both designing and implementing user-centric solutions that enhance functionality and drive conversions.",
     location: "Remote",

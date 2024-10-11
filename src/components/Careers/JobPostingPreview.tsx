@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Job } from "@/types";
-import { MapPin } from "lucide-react";
+import { MapPin, DollarSign } from "lucide-react";
 
 const JobPostingPreview = ({ job }: { job: Job }) => {
   return (
@@ -12,6 +12,10 @@ const JobPostingPreview = ({ job }: { job: Job }) => {
         <p className="text-gray-500 flex items-center">
           <MapPin className="w-4 h-4 mr-2" />
           {job.location}
+        </p>
+        <p className="text-gray-500 flex items-center">
+          <DollarSign className="w-4 h-4 mr-2" />
+          {job.compensation}
         </p>
       </div>
     </Link>
