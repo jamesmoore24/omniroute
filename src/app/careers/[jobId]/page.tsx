@@ -8,7 +8,7 @@ import { Header } from "@/components/Header"; // Adjust the import based on your
 const jobs: Job[] = [
   {
     id: "5db2f88d-4f4b-49e5-8aeb-0f8a9db3443c",
-    title: "UI/UX Design Intern",
+    title: "Founding Marketing & Design Intern",
     responsibilities: [
       "Reimagining our brand identity and developing a cohesive visual design language that appeals to our target demographic",
       "Refactoring our pitch deck to effectively communicate our value proposition and unique selling points",
@@ -31,9 +31,9 @@ const jobs: Job[] = [
     ],
     commitment: "Part-time",
     compensation:
-      "$500 upon project completion with the opportunity to earn more",
+      "$500 upon project completion with the opportunity to earn more cash, equity, and join the team full-time depending on performance",
     description:
-      "We are on the lookout for a talented UI/UX Designer to join our team. Our platforms can potentially attract millions of visitors and business owners alike, and we aim to provide them with a flawless and engaging experience. As a UI/UX Designer, you will play a critical role in both designing and implementing user-centric solutions that enhance functionality and drive conversions.",
+      "We are on the lookout for a talented Founding Marketing & Design intern to join our team. Our platforms can potentially attract millions of visitors and business owners alike, and we aim to provide them with a flawless and engaging experience. As a Marketing & Design intern, you will play a critical role in both designing and implementing user-centric solutions that enhance functionality and drive conversions.",
     location: "Remote",
   },
 ];

@@ -1,7 +1,7 @@
 export interface Job {
   id: string; // Unique identifier for the job
   title: string; // Job title
-  commitment: "Full-time" | "Part-time" | "Contract";
+  commitment: string;
   aboutUs: string;
   description: string;
   responsibilities: string[];
