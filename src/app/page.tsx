@@ -3,6 +3,7 @@
 import React from "react";
 import { Button, Typography, Space } from "antd";
 import { AnimatedGridBackground } from "../components/GridBackground";
+import FundingLogos from "../components/Landing/SandboxLogo";
 import { Header } from "../components/Header";
 import { LandingDemo } from "../components/Landing/LandingDemo";
 import { useRouter } from "next/navigation";
@@ -61,6 +62,7 @@ export default function AiLandingPage() {
             everyone.
           </Paragraph>
           <LandingDemo />
+          <FundingLogos />
         </main>
       </div>
     </div>
