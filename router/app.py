@@ -148,7 +148,6 @@ model = model.eval().to(torch.device("cuda" if torch.cuda.is_available() else "c
 
 @app.post("/route")
 def route_model(request: RouteRequest):
-    print(request)
     try:
         winrate = model.pred_win_rate(MODEL_IDS['gpt-4-1106-preview'], MODEL_IDS['mixtral-8x7b-instruct-v0.1'], request.prompt)
         if winrate > request.threshold:

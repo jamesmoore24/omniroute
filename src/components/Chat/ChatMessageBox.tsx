@@ -26,7 +26,7 @@ const ChatMessageBox: React.FC<ChatMessageBoxProps> = ({
         {message.type !== "image" ? (
           message.sender === "user" ? (
             <div
-              className={`p-3 rounded-lg bg-orange-100 transition-transform duration-300`}
+              className={`p-3 rounded-lg bg-orange-100 shadow transition-transform duration-300`}
             >
               {message.images && message.images.length > 0 && (
                 <div className="flex space-x-2 mb-2">

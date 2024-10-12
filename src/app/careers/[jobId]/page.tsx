@@ -29,7 +29,7 @@ const jobs: Job[] = [
       "Receive letters of recommendation from our team of world-class MIT AI researchers and engineers",
       "Flexible, remote work arrangements",
     ],
-    commitment: "Part-time",
+    commitment: "Part-time (5-10 hours/week)",
     compensation:
       "$500 upon project completion with the opportunity to earn more cash, equity, and join the team full-time depending on performance",
     description:

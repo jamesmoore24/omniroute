@@ -26,9 +26,6 @@ export const Header: React.FC = () => {
               Careers
             </Button>
           </Link>
-          <Button variant="ghost" className="text-black hover:text-orange-500">
-            Sign In
-          </Button>
         </nav>
       </div>
     </header>
