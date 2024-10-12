@@ -5,7 +5,7 @@ import sandboxLogo from "@/assets/sandbox-logo.png";
 const FundingLogos: React.FC = () => {
   return (
     <div className="fixed bottom-4 right-4 z-50 flex items-center">
-      <span className="mr-2 text-gray-700">Funded by:</span>
+      <span className="mr-2 text-gray-700">Backed by:</span>
       <a
         href="https://sandbox.mit.edu/"
         target="_blank"
