@@ -1,8 +1,6 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import Image from "next/image";
-import logo from "@/assets/logo.png";
 
 export const Header: React.FC = () => {
   return (
