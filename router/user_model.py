@@ -1,14 +1,24 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-PROFIT_PER_POWER_USER = 1.5
+PROFIT_PER_POWER_USER = 1
 PROFIT_PER_CASUAL_USER = 2.25
 
 REVENUE_PER_POWER_USER = 20
 REVENUE_PER_CASUAL_USER = 15
 
 TOTAL_MARKET_USERS = 200_000_000
+TOTAL_MARKET_GROWTH_RATE = 0.02
+USER_MARKET_SHARE = 0.000005
 MONTHS = 17
+
+AVERAGE_CONTRACT_LENGTH = 12
+USERS_PER_CONTRACT = 10
+FLAT_FEE_PER_CONTRACT = 199
+FEE_PER_USER_PER_MONTH = 30
+
+# Calculate the number of contracts for each month
+number_of_contracts = [0 if month < 5 else 50 * (1.2 ** (month - 5)) for month in range(MONTHS)]
 
 user_ratios = [
     (0, 0),  # Month 0
@@ -23,9 +33,8 @@ user_ratios = [
     (0.40, 0.60),  # Month 9
     (0.30, 0.70),  # Month 10
 ] + [(0.30, 0.70)] * (MONTHS - 11)
-
-fraction_of_market_users = [0.00001 * (1.5 ** i) for i in range(MONTHS)]
-total_market_users = [200_000_000 + (i * 20_000_000) for i in range(MONTHS)]
+fraction_of_market_users = [USER_MARKET_SHARE * (1.5 ** i) for i in range(MONTHS)]
+total_market_users = [TOTAL_MARKET_USERS * (1 + TOTAL_MARKET_GROWTH_RATE) ** i for i in range(MONTHS)]
 marketing_costs = [0, 1000, 1000, 1000] + [20_000] * (MONTHS - 4)
 hosting_costs = [10000] * MONTHS
 development_costs = [25000, 25000, 25000, 25000] + [3000] * (MONTHS - 4)
@@ -54,12 +63,18 @@ def calculate_revenue(monthly_active_users, user_ratios, revenue_per_power_user,
 revenues = calculate_revenue(monthly_active_users, user_ratios, REVENUE_PER_POWER_USER, REVENUE_PER_CASUAL_USER)
 profits = calculate_profit(monthly_active_users, user_ratios, PROFIT_PER_POWER_USER, PROFIT_PER_CASUAL_USER)
 
+# Calculate B2B profit
+b2b_profit = np.array(number_of_contracts) * FLAT_FEE_PER_CONTRACT
+
+# Update total profit calculation to include B2B profit
+total_profit = np.array(profits) + np.array(b2b_profit)  # Assuming 'profits' is already defined
+
 # Create a figure with 1 row and 4 columns for the subplots
 plt.figure(figsize=(18, 6))  # Adjusted height for better spacing
 
 # Plotting the profit per month as a histogram
 """ plt.subplot(1, 4, (2, 4))  # 1 row, 4 columns, first subplot
-plt.bar(range(len(profits)), profits, color='skyblue')
+plt.bar(range(len(total_profit)), profits, color='skyblue')
 plt.title('Profit per Month')
 plt.xlabel('Month')
 plt.ylabel('Profit ($) in millions', labelpad=15)  # Added labelpad for y-axis
@@ -73,24 +88,25 @@ for i, profit in enumerate(profits):
     elif profit >= 1_000:
         plt.text(i, profit, f'${profit/1_000:.1f}K', ha='center', va='bottom') """
 
-# Plotting the revenue per month as a histogram
-""" plt.subplot(1, 4, (2, 4))  # 1 row, 4 columns, second subplot
+""" # Plotting the revenue per month as a histogram
+plt.subplot(1, 4, (2, 4))  # 1 row, 4 columns, second subplot
 bars = plt.bar(range(len(revenues)), revenues, color='lightblue')
 plt.title('Revenue per Month')
 plt.xlabel('Month')
 plt.ylabel('Revenue ($) in millions', labelpad=15)  # Added labelpad for y-axis
 plt.xticks(range(len(revenues)), [f'{i}' for i in range(len(revenues))])
-plt.grid(axis='y')
+plt.yticks(np.arange(0, 19_000_000, 1_000_000), [f'{i} M' for i in range(19)])  # Set y-ticks from 0 to 18M with labels
+plt.grid(False)  # Disable grid lines
 
 # Label every bar with the revenue
 for i, bar in enumerate(bars):
     revenue = revenues[i]
     if revenue >= 1_000_000:
-        plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f'${revenue/1_000_000:.1f}M', ha='center', va='bottom')
+        plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f'${revenue/1_000_000:.1f}M', ha='center', va='bottom', fontsize=8)  # Smaller font size
     elif revenue >= 1_000:
-        plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f'${revenue/1_000:.1f}K', ha='center', va='bottom') """
+        plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f'${revenue/1_000:.1f}K', ha='center', va='bottom', fontsize=8)  # Smaller font size """
 
-# Plotting the number of monthly users (stacked bar chart)
+""" # Plotting the number of monthly users (stacked bar chart)
 plt.subplot(1, 4, (2, 4))  # 1 row, 4 columns, third subplot
 power_users = [monthly_active_users[i] * user_ratios[i][0] for i in range(16)]
 casual_users = [monthly_active_users[i] * user_ratios[i][1] for i in range(16)]
@@ -100,33 +116,45 @@ plt.title('Monthly Users')
 plt.xlabel('Month')
 plt.ylabel('Number of Users')
 plt.xticks(range(len(power_users)), [f'{i}' for i in range(len(power_users))])
-plt.yticks([0, 100_000, 200_000, 300_000, 400_000, 500_000, 600_000, 700_000, 800_000, 900_000, 1_000_000], 
-           ['0', '100K', '200K', '300K', '400K', '500K', '600K', '700K', '800K', '900K', '1M'])
+plt.yticks(range(0, 301_000, 25_000), 
+           [f'{i//1_000:.0f}K' for i in range(0, 301_000, 25_000)])
+plt.legend() """
+
+""" plt.figure(figsize=(10, 6))
+plt.plot(range(5, MONTHS), number_of_contracts[5:], marker='o', color='skyblue', label='Number of Contracts')
+plt.title('Growth in the Number of Businesses Using Our Product (Months 5 and On)')
+plt.xlabel('Months')
+plt.ylabel('Number of Businesses (Contracts)')
+plt.xticks(range(5, MONTHS), [f'{i}' for i in range(5, MONTHS)])  # Labeling x-axis with month numbers starting from 5
+plt.grid(axis='y')
 plt.legend()
+plt.tight_layout()
+plt.show() """
 
 
 # Calculate cumulative net profit
-""" total_costs = np.array(marketing_costs) + np.array(hosting_costs) + np.array(development_costs)
-net_profit = np.array(profits) - total_costs
+total_costs = np.array(marketing_costs) + np.array(hosting_costs) + np.array(development_costs)
+net_profit = total_profit - total_costs
 
 cumulative_net_profit = np.cumsum(net_profit)  # Calculate cumulative sum of net profit
 plt.subplot(1, 4, (2, 4))  # 1 row, 4 columns, fourth subplot
 plt.plot(range(len(cumulative_net_profit)), cumulative_net_profit, marker='o', color='green', label='Cumulative Net Profit')
-plt.title('Cumulative Net Profit per Month')
+plt.title('Cumulative Earnings per Month')
 plt.xlabel('Month')
-plt.ylabel('Cumulative Net Profit ($) in millions', labelpad=15)  # Added labelpad for y-axis
+plt.ylabel('Cumulative Earnings ($)', labelpad=15)  # Added labelpad for y-axis
 plt.xticks(range(len(cumulative_net_profit)), [f'{i}' for i in range(len(cumulative_net_profit))])
-plt.grid()
+plt.yticks(np.arange(0, 6_000_000, 500_000), [f'{i*0.5} M' for i in range(12)])
+plt.axhline(0, color='lightgray', linewidth=0.8)  # Only show a horizontal line for y=0 in light gray
 plt.legend()
 
 # Add dollar amounts to each point
 for i, profit in enumerate(cumulative_net_profit):
     if profit >= 1_000_000:
-        plt.text(i, profit + 250_000, f'${profit/1_000_000:.1f}M', ha='center', va='bottom')  # Adjusted y position
+        plt.text(i - 0.1, profit + 50_000, f'${profit/1_000_000:.1f}M', ha='center', va='bottom', fontsize=9)  # Smaller font size
     elif profit >= 1_000:
-        plt.text(i, profit + 250_000, f'${profit/1_000:.1f}K', ha='center', va='bottom')  # Adjusted y position
+        plt.text(i - 0.1, profit + 50_000, f'${profit/1_000:.1f}K', ha='center', va='bottom', fontsize=9)  # Smaller font size
     elif profit < 0:
-        plt.text(i, profit + 250_000, f'-${abs(profit)/1_000:.1f}K', ha='center', va='bottom')  # Adjusted y position
- """
+        plt.text(i - 0.1, profit + 50_000, f'-${abs(profit)/1_000:.1f}K', ha='center', va='bottom', fontsize=9)  # Smaller font size
+
 plt.tight_layout()
 plt.show()  # Show all plots in the same window

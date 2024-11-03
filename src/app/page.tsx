@@ -62,7 +62,6 @@ export default function AiLandingPage() {
             everyone.
           </Paragraph>
           <LandingDemo />
-          <FundingLogos />
         </main>
       </div>
     </div>
