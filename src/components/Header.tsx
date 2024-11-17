@@ -8,7 +8,7 @@ export const Header: React.FC = () => {
       <div className="flex justify-between items-center h-16 px-5">
         <Link href="/" className="flex items-center space-x-2">
           <div className="w-7 h-7 bg-orange-500 rounded-full"></div>
-          <span className="text-black text-xl font-bold">OmniRoute</span>
+          <span className="text-black text-xl font-bold">OmniRoute.ai</span>
         </Link>
         <nav className="flex items-center space-x-4">
           <Link href="/chat">
