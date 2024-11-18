@@ -29,7 +29,7 @@ export default function AiLandingPage() {
             className="text-gray-800 text-5xl md:text-6xl font-extrabold mb-6 animate-fade-in-up"
           >
             <span className="text-gray-800">
-              The unified LLM platform made just for you.
+              The unified LLM platform made just for you!
             </span>
           </Title>
           <Paragraph className="text-gray-700 text-xl md:text-2xl mb-12 max-w-2xl mx-auto animate-fade-in-up animation-delay-200">
