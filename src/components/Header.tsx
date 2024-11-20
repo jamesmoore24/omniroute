@@ -10,7 +10,7 @@ export default function Header() {
           <Link to="/" className="flex items-center space-x-2">
             <Navigation className="h-8 w-8 text-indigo-600" />
             <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              OmniRoute
+              OmniRoute.ai
             </span>
           </Link>
           <div className="hidden md:flex items-center space-x-8">
