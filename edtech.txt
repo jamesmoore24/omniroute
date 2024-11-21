@@ -1,0 +1,117 @@
+Pretend that you are a react developer with 30 years of expertise. You will be given a prompt to develop a new web application. Pages will be encased with <page> and </page>. Features of that page will be encased with <feature> and </feature>. User flows will be encased with <flow> and </flow> where sequential <feature> tags demonstrate how features show up one after the other. The header of the page will be encased with <header> and </header>. The click behavior of any feature will be encased by <click> and </click>
+
+Whenever responses from an LLM are displayed please hardcode the response for now but make the code such that it is easy to call the OpenAI API by just adding my personal API key. 
+
+The color theme should be bright orange and white. Please make a website with a landing page for an EdTech startup that automates the assignment and grading processes for a class.
+
+Here is what the product should be:
+<header>
+    This header should be displayed throughout all pages
+    <feature>
+        The logo titled “OmniRoute” should be on the top left corner of the header
+    </feature>
+    <feature>
+        In the CENTER of the header there should be drop down menus for:
+        Products 
+        <click> 
+            Should display “auto assignment generator” and “auto grader” text
+        </click>
+        About
+        <click>
+            Displays “mission”, “privacy” and “team” text
+        </click>
+    </feature>
+    <feature>
+        On the top right corner there should be a sign up button 
+        <click>
+            Directs user to a sign up or login page
+        </click>
+    </feature>
+</header>
+
+<page>
+    Homepage should be a generic edtech SaaS landing page
+</page>
+
+<page>
+    Login and signup page should be a generic signup page with options for google and email sign up/in
+</page>
+
+<page>
+    Auto assignment and rubric generator page  
+    <flow>
+        <feature>
+            There should be a text area with that user’s click into that says “Describe your assignment” by default. Next to the text area there is a button with a paper airplane that when clicked sends the message to an LLM.
+            <click>
+                Sends the message to an LLM
+            </click>
+        </feature>
+        <feature>
+            Once a response is received from the LLM it should format the text into a pdf preview that is above the textbox which the teacher can “flip” through using arrow buttons
+            The assignment should be segmented into different problems which the user can highlight and change via a hovering text box
+            <click>
+                Highlights the problem
+                <feature>
+                    A text box should appear that allows the user to change the problem
+                </feature>
+            </click>
+            There should be a button that says “Download PDF”
+            There should be a button that says “Regenerate” and a text input box that allows the user to input a new prompt and general clarifications to the assignment
+            <click>
+                Sends the message to an LLM
+            </click>
+        </feature>
+        <feature>
+            Once created the assignment should be saved to the user's profile
+            A rubric should be generated where the different sections of the assignment are broken down into different criteria boxes
+            <click>
+                If the user clicks on a criteria box then they should be able to change the criteria and the weight of that criteria
+            </click>
+            There should be a button that says “Download Rubric”
+            There should be a button that says “Save assignment”
+            <click>
+                Saves the assignment to the user's profile
+            </click>
+        </feature>
+        Goes back to making a new assignment
+    </flow>
+</page>
+
+<page>
+    Profile page
+    <feature>
+        Should display the user’s name and profile picture on the right side of the page
+    </feature>
+    <feature>
+        There should be a list of the assignments that the user has made so far with preview into how they actually look as well as their title above the preview
+        <click>
+            Directs the user to the auto assignment generator feature with that specific assignment
+        </click>
+    </feature>
+</page>
+
+    There are 2 options: 
+Assignment generator
+Has a text area with that user’s click into that says “Describe your assignment” by default. Next to the text area there is a button with a paper airplane that when clicked sends the message to an LLM.
+Once clicked a check should be made on the text and then the text is sent to an LLM for a response while a spinner takes the place of the paper airplane.
+Once a response is received from the LLM it should format the text into a pdf preview that is above the textbox which the teacher can “flip” through using arrow buttons
+If they are unsatisfied with this request they can “regenerate” with more specific prompting (e.g. “make the assignment longer”, “make it harder”, “focus on [insert topic] more”, etc…)
+If they are satisfied they can download the image as a pdf
+The next frame contains an AI generated rubric and assignment about the history of MIT.
+The user can resubmit to regenerate the assignment and say things like “make it harder”, “make it easier”, “add a question about the relationship between MIT and Harvard”
+If they choose to regenerate then it should load again for 3 seconds and then display some other hard coded version of the assignment and rubric
+If the user likes the assignment and rubric they can press an “accept” button which makes the rubric and assignment fade and go to the left and then a hardcoded example submission will fade in and slide in the from the right
+The example submission should be shown and there should be a profile picture of the student whose work this is related to and a “grade” button underneath the work as well as some arbitrary time that this work was submitted
+Once the “grade” button is clicked it should load and then the information about the grading should fade and slide in from the right
+The grading portion should be as follows:
+There will be two parts that are stacked vertically and load successively from top to bottom
+The first one will show some hard coded overall grade with a nice pie chart
+Have the rubric filled out
+Button 
+The second one should show some automatically generated suggestions based on the users work
+There should be a button at the bottom which says “Submit grade” and then the section fades out and goes to the right and then the next section fades in and comes in from the right
+The student’s profile should come into view
+The student profile should display some picture of the child in a circular frame
+The student’s overall grade with some progress bar should be shown filling up after submitting the work which was graded an “A”
+There should be words saying “All your work is done”
+
