@@ -167,29 +167,3 @@ Here is what the product should be:
         </click>
     </feature>
 </page>
-
-    There are 2 options: 
-Assignment generator
-Has a text area with that user’s click into that says “Describe your assignment” by default. Next to the text area there is a button with a paper airplane that when clicked sends the message to an LLM.
-Once clicked a check should be made on the text and then the text is sent to an LLM for a response while a spinner takes the place of the paper airplane.
-Once a response is received from the LLM it should format the text into a pdf preview that is above the textbox which the teacher can “flip” through using arrow buttons
-If they are unsatisfied with this request they can “regenerate” with more specific prompting (e.g. “make the assignment longer”, “make it harder”, “focus on [insert topic] more”, etc…)
-If they are satisfied they can download the image as a pdf
-The next frame contains an AI generated rubric and assignment about the history of MIT.
-The user can resubmit to regenerate the assignment and say things like “make it harder”, “make it easier”, “add a question about the relationship between MIT and Harvard”
-If they choose to regenerate then it should load again for 3 seconds and then display some other hard coded version of the assignment and rubric
-If the user likes the assignment and rubric they can press an “accept” button which makes the rubric and assignment fade and go to the left and then a hardcoded example submission will fade in and slide in the from the right
-The example submission should be shown and there should be a profile picture of the student whose work this is related to and a “grade” button underneath the work as well as some arbitrary time that this work was submitted
-Once the “grade” button is clicked it should load and then the information about the grading should fade and slide in from the right
-The grading portion should be as follows:
-There will be two parts that are stacked vertically and load successively from top to bottom
-The first one will show some hard coded overall grade with a nice pie chart
-Have the rubric filled out
-Button 
-The second one should show some automatically generated suggestions based on the users work
-There should be a button at the bottom which says “Submit grade” and then the section fades out and goes to the right and then the next section fades in and comes in from the right
-The student’s profile should come into view
-The student profile should display some picture of the child in a circular frame
-The student’s overall grade with some progress bar should be shown filling up after submitting the work which was graded an “A”
-There should be words saying “All your work is done”
-
