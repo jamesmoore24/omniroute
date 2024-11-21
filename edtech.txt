@@ -38,8 +38,24 @@ Here is what the product should be:
 </page>
 
 <page>
-    Auto assignment and rubric generator page  
-    <flow>
+    Auto assignment and rubric generator, assignment preview and grading page  
+
+    <feature>
+        There should be a search bar on the top of the page that allows the user to search for previous assignments
+    </feature>
+    <feature>
+        The main page should display all of the assignments that the user has made so far with the title, preview and a button that says “View”
+        <click>
+            Directs the user to that assignment's page
+        </click>
+    </feature>
+
+    <feature>
+        There should be a button that says “New assignment” on the left side of the page
+        <click>
+            Directs the user to the auto assignment generator feature
+        </click>
+        <flow>
         <feature>
             There should be a text area with that user’s click into that says “Describe your assignment” by default. Next to the text area there is a button with a paper airplane that when clicked sends the message to an LLM.
             <click>
@@ -73,8 +89,70 @@ Here is what the product should be:
                 Saves the assignment to the user's profile
             </click>
         </feature>
-        Goes back to making a new assignment
+        Goes back to main assignments page
     </flow>
+    </feature>
+</page>
+
+<page>
+    Assignment page
+    <feature>
+        Should display the assignment and rubric
+    </feature>
+    <feature>
+        There should be a button that says “Download PDF”
+    </feature>
+    <feature>
+        There should be a button that says “Regenerate”
+        <click>
+            This brings the user to the auto assignment and rubric generator page with the assignment already filled out
+        </click>
+    </feature>
+    <feature>
+        There should be a button that says “Save assignment”
+        <click>
+            Saves the assignment to the user's profile and brings them back to the main assignments page
+        </click>
+    </feature>
+    <feature>
+        There should be a button that says “Delete assignment”
+        <click>
+            Deletes the assignment from the user's profile and brings them back to the main assignments page
+        </click>
+    </feature>
+    <feature>
+        There should be a button that says “Grade assignment”
+        <click>
+            Brings the user to that assignment's grading page
+            <flow>
+                <feature>
+                    Displays the assignment and rubric
+                </feature>
+                <feature>
+                    Should be a dropdown menu where you can select for the student that the assignment is being graded for
+                </feature>
+                <feature>
+                    Displays a section where the user can input the student's work via uploading a file 
+                    <click>
+                        Uploads the file and sends it to an LLM for grading
+                    </click>
+                </feature>
+                <feature>
+                    The rubric is filled out based on the assignment and the student's work
+                    The overall score for the assignment is displayed and reasons for the score are displayed for each criteria
+                    <click>
+                        The teacher can click on a criteria and can change the grade and reasons for the grade
+                    </click>
+                </feature>
+                <feature>
+                    There should be a button that says “Submit grade”
+                    <click>
+                        Saves the grade to the student's profile
+                    </click>
+                </feature>
+            </flow>
+        </click>
+    </feature>
 </page>
 
 <page>
