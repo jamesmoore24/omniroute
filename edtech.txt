@@ -1,169 +1,54 @@
-Pretend that you are a react developer with 30 years of expertise. You will be given a prompt to develop a new web application. Pages will be encased with <page> and </page>. Features of that page will be encased with <feature> and </feature>. User flows will be encased with <flow> and </flow> where sequential <feature> tags demonstrate how features show up one after the other. The header of the page will be encased with <header> and </header>. The click behavior of any feature will be encased by <click> and </click>
+Pretend that you are a react developer with 30 years of expertise. You will be given a prompt to develop a new web application. Pages will be encased with <page> and </page>. Features of that page will be encased with <feature> and </feature>. User flows will be encased with <flow> and </flow> where sequential <feature> tags demonstrate how features show up one after the other. The header of the page will be encased with <header> and </header>. The click behavior of any feature will be encased by <click> and </click>. Any changes from the previous prompt should be encased with <change> and </change>.
 
 Whenever responses from an LLM are displayed please hardcode the response for now but make the code such that it is easy to call the OpenAI API by just adding my personal API key. 
 
-The color theme should be bright orange and white. Please make a website with a landing page for an EdTech startup that automates the assignment and grading processes for a class.
+Here are the changes from the previous prompt:
+<change>
+    There should only be a 
+</change>
 
-Here is what the product should be:
-<header>
-    This header should be displayed throughout all pages
-    <feature>
-        The logo titled “OmniRoute” should be on the top left corner of the header
-    </feature>
-    <feature>
-        In the CENTER of the header there should be drop down menus for:
-        Products 
-        <click> 
-            Should display “auto assignment generator” and “auto grader” text
-        </click>
-        About
-        <click>
-            Displays “mission”, “privacy” and “team” text
-        </click>
-    </feature>
-    <feature>
-        On the top right corner there should be a sign up button 
-        <click>
-            Directs user to a sign up or login page
-        </click>
-    </feature>
-</header>
 
-<page>
-    Homepage should be a generic edtech SaaS landing page
-</page>
 
-<page>
-    Login and signup page should be a generic signup page with options for google and email sign up/in
-</page>
 
-<page>
-    Auto assignment and rubric generator, assignment preview and grading page  
-
-    <feature>
-        There should be a search bar on the top of the page that allows the user to search for previous assignments
-    </feature>
-    <feature>
-        The main page should display all of the assignments that the user has made so far with the title, preview and a button that says “View”
-        <click>
-            Directs the user to that assignment's page
-        </click>
-    </feature>
-
-    <feature>
-        There should be a button that says “New assignment” on the left side of the page
-        <click>
-            Directs the user to the auto assignment generator feature
-        </click>
-        <flow>
-        <feature>
-            There should be a text area with that user’s click into that says “Describe your assignment” by default. Next to the text area there is a button with a paper airplane that when clicked sends the message to an LLM.
-            <click>
-                Sends the message to an LLM
-            </click>
-        </feature>
-        <feature>
-            Once a response is received from the LLM it should format the text into a pdf preview that is above the textbox which the teacher can “flip” through using arrow buttons
-            The assignment should be segmented into different problems which the user can highlight and change via a hovering text box
-            <click>
-                Highlights the problem
-                <feature>
-                    A text box should appear that allows the user to change the problem
-                </feature>
-            </click>
-            There should be a button that says “Download PDF”
-            There should be a button that says “Regenerate” and a text input box that allows the user to input a new prompt and general clarifications to the assignment
-            <click>
-                Sends the message to an LLM
-            </click>
-        </feature>
-        <feature>
-            Once created the assignment should be saved to the user's profile
-            A rubric should be generated where the different sections of the assignment are broken down into different criteria boxes
-            <click>
-                If the user clicks on a criteria box then they should be able to change the criteria and the weight of that criteria
-            </click>
-            There should be a button that says “Download Rubric”
-            There should be a button that says “Save assignment”
-            <click>
-                Saves the assignment to the user's profile
-            </click>
-        </feature>
-        Goes back to main assignments page
-    </flow>
-    </feature>
-</page>
-
-<page>
-    Assignment page
-    <feature>
-        Should display the assignment and rubric
-    </feature>
-    <feature>
-        There should be a button that says “Download PDF”
-    </feature>
-    <feature>
-        There should be a button that says “Regenerate”
-        <click>
-            This brings the user to the auto assignment and rubric generator page with the assignment already filled out
-        </click>
-    </feature>
-    <feature>
-        There should be a button that says “Save assignment”
-        <click>
-            Saves the assignment to the user's profile and brings them back to the main assignments page
-        </click>
-    </feature>
-    <feature>
-        There should be a button that says “Delete assignment”
-        <click>
-            Deletes the assignment from the user's profile and brings them back to the main assignments page
-        </click>
-    </feature>
-    <feature>
-        There should be a button that says “Grade assignment”
-        <click>
-            Brings the user to that assignment's grading page
-            <flow>
-                <feature>
-                    Displays the assignment and rubric
-                </feature>
-                <feature>
-                    Should be a dropdown menu where you can select for the student that the assignment is being graded for
-                </feature>
-                <feature>
-                    Displays a section where the user can input the student's work via uploading a file 
-                    <click>
-                        Uploads the file and sends it to an LLM for grading
-                    </click>
-                </feature>
-                <feature>
-                    The rubric is filled out based on the assignment and the student's work
-                    The overall score for the assignment is displayed and reasons for the score are displayed for each criteria
-                    <click>
-                        The teacher can click on a criteria and can change the grade and reasons for the grade
-                    </click>
-                </feature>
-                <feature>
-                    There should be a button that says “Submit grade”
-                    <click>
-                        Saves the grade to the student's profile
-                    </click>
-                </feature>
-            </flow>
-        </click>
-    </feature>
-</page>
-
-<page>
-    Profile page
-    <feature>
-        Should display the user’s name and profile picture on the right side of the page
-    </feature>
-    <feature>
-        There should be a list of the assignments that the user has made so far with preview into how they actually look as well as their title above the preview
-        <click>
-            Directs the user to the auto assignment generator feature with that specific assignment
-        </click>
-    </feature>
-</page>
+NOTES:
+- Assignments
+    - Uploading assignments
+        - Should be able to upload a PDF, google doc, docx, or plain text file
+        - Connect their google drive and then draw from one folder with all assignments
+    - Creating assignments
+        - Auto question generation
+        - Allow teacher to make edits to the auto generated questions
+        - Ability to regenerate specific questions based on text input
+        - Allow for whole assignment regeneration based on text input
+    - Creating rubrics
+        - Auto rubric generation based on points per question
+            - Points per question should be auto suggested based on the sections relative difficulty
+        - Allow teacher to make edits to the auto generated rubric
+    - Viewing assignments
+        - Ability to see either list or grid view with preview
+        - Ability to search for assignments
+    - Searching for assignments
+        - Ability to search for assignments by name, description, due date, or tags
+    - Deleting assignments
+        - "Are you sure?" modal
+    - Grading assignments
+        - Auto grading with rubric
+        - Allow teacher to make edits to the auto grading
+        - Allow LLM to learn from teacher's edits and improve for future students on the same assignment
+- Students
+    - Creating students
+    - Viewing students
+    - Searching for students
+    - Deleting students
+    - Grading students
+        - Viewing grades
+        - Searching for grades
+        - Deleting grades
+        - Adding grades
+        - Editing grades
+- Analytics
+    - Viewing analytics
+    - Searching for analytics
+    - Deleting analytics
+    - Adding analytics
+    - Editing analytics
