@@ -1,18 +1,17 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import EdTechDemo from './pages/EdTechDemo';
-import MarketResearchDemo from './pages/MarketResearchDemo';
+import { Header } from './components/Header';
+import { Mission } from './components/Mission';
+import { Team } from './components/Team';
+import { Contact } from './components/Contact';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/edtech" element={<EdTechDemo />} />
-        <Route path="/market-research" element={<MarketResearchDemo />} />
-      </Routes>
-    </BrowserRouter>
+    <div className="min-h-screen bg-white">
+      <Header />
+      <Mission />
+      <Team />
+      <Contact />
+    </div>
   );
 }
 
