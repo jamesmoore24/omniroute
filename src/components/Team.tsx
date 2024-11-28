@@ -1,21 +1,25 @@
-import React from 'react';
-import { Linkedin } from 'lucide-react';
+import React from "react";
+import { Linkedin, Globe } from "lucide-react";
+import founder1Image from "../assets/images/casey_picture.jpeg";
+import founder2Image from "../assets/images/james_picture.jpg";
 
 const founders = [
   {
-    name: 'Casey Tewey',
-    role: 'Co-founder',
-    linkedin: 'Cofounder 1',
-    email: 'cofounder1@example.com',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=256'
+    name: "Casey Tewey",
+    role: "Co-founder",
+    linkedin: "Cofounder 1",
+    email: "cofounder1@example.com",
+    website: "https://example.com",
+    image: founder1Image,
   },
   {
-    name: 'James Moore',
-    role: 'Co-founder',
-    linkedin: 'Cofounder 2',
-    email: 'cofounder2@example.com',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=256'
-  }
+    name: "James Moore",
+    role: "Co-founder",
+    linkedin: "Cofounder 2",
+    email: "cofounder2@example.com",
+    website: "https://example.com",
+    image: founder2Image,
+  },
 ];
 
 export function Team() {
@@ -25,7 +29,10 @@ export function Team() {
         <h2 className="text-3xl font-bold text-center mb-12">Our Team</h2>
         <div className="grid md:grid-cols-2 gap-8">
           {founders.map((founder) => (
-            <div key={founder.name} className="bg-white rounded-lg shadow-md p-6 flex flex-col items-center">
+            <div
+              key={founder.name}
+              className="bg-white rounded-lg shadow-md p-6 flex flex-col items-center"
+            >
               <img
                 src={founder.image}
                 alt={founder.name}
@@ -48,6 +55,15 @@ export function Team() {
                   className="text-blue-600 hover:text-blue-700"
                 >
                   Email
+                </a>
+                <a
+                  href={founder.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-700 flex items-center"
+                >
+                  <Globe className="w-5 h-5 mr-1" />
+                  Website
                 </a>
               </div>
             </div>

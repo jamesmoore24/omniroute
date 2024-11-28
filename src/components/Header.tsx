@@ -1,5 +1,5 @@
-import React from 'react';
-import { GraduationCap } from 'lucide-react';
+import React from "react";
+import { GraduationCap } from "lucide-react";
 
 export function Header() {
   return (
@@ -9,10 +9,11 @@ export function Header() {
           <GraduationCap size={48} className="text-white" />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold mb-6">
-          Building Next Generation EdTech Tools
+          Omniroute is now building next generation EdTech tools
         </h1>
         <p className="text-xl md:text-2xl text-blue-100 max-w-2xl mx-auto">
-          We are dedicated to creating innovative educational tools for teachers, students, and schools.
+          We are dedicated to creating innovative educational tools for
+          teachers, students, and schools.
         </p>
       </div>
     </header>
