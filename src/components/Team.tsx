@@ -7,17 +7,17 @@ const founders = [
   {
     name: "Casey Tewey",
     role: "Co-founder",
-    linkedin: "Cofounder 1",
-    email: "cofounder1@example.com",
-    website: "https://example.com",
+    linkedin: "tewey",
+    email: "casey.tewey@gmail.com",
+    website: "https://caseytewey.com",
     image: founder1Image,
   },
   {
     name: "James Moore",
     role: "Co-founder",
-    linkedin: "Cofounder 2",
-    email: "cofounder2@example.com",
-    website: "https://example.com",
+    linkedin: "james-moore-a931811b7",
+    email: "jame.moore24@gmail.com",
+    website: "https://jmoore.info",
     image: founder2Image,
   },
 ];
