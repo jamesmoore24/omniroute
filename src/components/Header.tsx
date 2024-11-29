@@ -9,7 +9,7 @@ export function Header() {
           <GraduationCap size={48} className="text-white" />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold mb-6">
-          Omniroute is now building next generation EdTech tools
+          Omniroute is now building the next generation of EdTech tools
         </h1>
         <p className="text-xl md:text-2xl text-blue-100 max-w-2xl mx-auto">
           We are dedicated to creating innovative educational tools for

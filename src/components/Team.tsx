@@ -12,7 +12,7 @@ import sloanLogo from "../assets/images/mit_sloan_logo.png";
 const founders = [
   {
     name: "Casey Tewey",
-    role: "Co-founder",
+    role: "Co-founder, CEO",
     linkedin: "tewey",
     email: "casey.tewey@gmail.com",
     website: "https://caseytewey.com",
@@ -21,7 +21,7 @@ const founders = [
   },
   {
     name: "James Moore",
-    role: "Co-founder",
+    role: "Co-founder, CTO",
     linkedin: "james-moore-a931811b7",
     email: "jame.moore24@gmail.com",
     website: "https://jmoore.info",
