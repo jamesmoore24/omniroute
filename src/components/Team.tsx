@@ -2,6 +2,12 @@ import React from "react";
 import { Linkedin, Globe } from "lucide-react";
 import founder1Image from "../assets/images/casey_picture.jpeg";
 import founder2Image from "../assets/images/james_picture.jpg";
+import csailLogo from "../assets/images/csail_logo.png";
+import gelLogo from "../assets/images/gel_logo.png";
+import martinLogo from "../assets/images/martin_trust_center_logo.png";
+import eecsLogo from "../assets/images/mit_eecs_logo.png";
+import mitLogo from "../assets/images/mit_logo.png";
+import sloanLogo from "../assets/images/mit_sloan_logo.png";
 
 const founders = [
   {
@@ -11,6 +17,7 @@ const founders = [
     email: "casey.tewey@gmail.com",
     website: "https://caseytewey.com",
     image: founder1Image,
+    logos: [mitLogo, sloanLogo, gelLogo, martinLogo],
   },
   {
     name: "James Moore",
@@ -19,6 +26,7 @@ const founders = [
     email: "jame.moore24@gmail.com",
     website: "https://jmoore.info",
     image: founder2Image,
+    logos: [mitLogo, sloanLogo, csailLogo, eecsLogo],
   },
 ];
 
@@ -65,6 +73,18 @@ export function Team() {
                   <Globe className="w-5 h-5 mr-1" />
                   Website
                 </a>
+              </div>
+              <div className="mt-4 grid  gap-4">
+                {founder.logos.map((logo) => (
+                  <div className="flex justify-center">
+                    <img
+                      key={logo} // Added key for each logo
+                      src={logo}
+                      alt={`${founder.name} Logo`}
+                      className="h-auto max-h-12 w-auto" // Maintain aspect ratio
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           ))}
