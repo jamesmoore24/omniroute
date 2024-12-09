@@ -8,6 +8,7 @@ import martinLogo from "../assets/images/martin_trust_center_logo.png";
 import eecsLogo from "../assets/images/mit_eecs_logo.png";
 import mitLogo from "../assets/images/mit_logo.png";
 import sloanLogo from "../assets/images/mit_sloan_logo.png";
+import metaLogo from "../assets/images/meta-logo-top-big.png";
 
 const founders = [
   {
@@ -26,7 +27,7 @@ const founders = [
     email: "jame.moore24@gmail.com",
     website: "https://jmoore.info",
     image: founder2Image,
-    logos: [mitLogo, sloanLogo, csailLogo, eecsLogo],
+    logos: [mitLogo, sloanLogo, eecsLogo, metaLogo],
   },
 ];
 
